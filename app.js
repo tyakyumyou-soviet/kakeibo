@@ -391,7 +391,6 @@ function openCategoryModal(inputId) {
   renderCategoryList();
   document.getElementById('category-modal').style.display = 'flex';
   document.getElementById('category-search').value = '';
-  document.getElementById('category-search').focus();
 }
 
 // カテゴリモーダルを閉じる
