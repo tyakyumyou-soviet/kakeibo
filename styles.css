@@ -121,7 +121,19 @@ body {
 .container {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 var(--spacing-md);
+  overflow-x: hidden;
   animation: fadeIn 0.6s ease;
+}
+
+/* 日付入力の幅制御（iOS Safari対策） */
+input[type="date"],
+input[type="datetime-local"] {
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 @keyframes fadeIn {
