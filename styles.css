@@ -324,6 +324,8 @@ body {
 .form-select,
 .form-textarea {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   padding: var(--spacing-sm) var(--spacing-md);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1067,12 +1069,13 @@ body {
     max-width: 300px;
   }
 
-  .card {
-    padding: var(--spacing-md);
-  }
-
   .form-row {
     grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: var(--spacing-md);
+    overflow: hidden;
   }
 
   .summary-grid {
@@ -1264,6 +1267,7 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
 /* ===================================
    タブナビゲーション
    =================================== */
@@ -1279,7 +1283,10 @@ body {
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
-.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-nav::-webkit-scrollbar {
+  display: none;
+}
 
 .tab-btn {
   flex: 1;
@@ -1297,15 +1304,18 @@ body {
   white-space: nowrap;
   position: relative;
 }
+
 .tab-btn:hover {
   color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.05);
 }
+
 .tab-btn.active {
   color: var(--text-primary);
   background: rgba(102, 126, 234, 0.15);
   box-shadow: 0 0 12px rgba(102, 126, 234, 0.2);
 }
+
 .tab-btn.active::after {
   content: '';
   position: absolute;
@@ -1321,12 +1331,21 @@ body {
   display: none;
   animation: tabFadeIn 0.3s ease;
 }
+
 .tab-content.active {
   display: block;
 }
+
 @keyframes tabFadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ===================================
@@ -1335,6 +1354,7 @@ body {
 .budget-status {
   padding: var(--spacing-md) 0;
 }
+
 .budget-header {
   display: flex;
   justify-content: space-between;
@@ -1343,11 +1363,13 @@ body {
   font-size: var(--font-size-md);
   color: var(--text-secondary);
 }
+
 .budget-header span:last-child {
   font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--text-primary);
 }
+
 .budget-inherited {
   display: inline-block;
   font-size: var(--font-size-sm);
@@ -1357,6 +1379,7 @@ body {
   border-radius: var(--border-radius-sm);
   margin-bottom: var(--spacing-sm);
 }
+
 .budget-progress {
   height: 12px;
   background: rgba(255, 255, 255, 0.08);
@@ -1365,20 +1388,34 @@ body {
   display: flex;
   margin-bottom: var(--spacing-md);
 }
+
 .budget-bar-fixed {
   height: 100%;
   background: rgba(255, 255, 255, 0.2);
   transition: width 0.5s ease;
 }
+
 .budget-bar-variable {
   height: 100%;
   background: linear-gradient(90deg, #667eea, #764ba2);
   transition: width 0.5s ease;
 }
-.budget-bar-variable.budget-color-green { background: linear-gradient(90deg, #10b981, #34d399); }
-.budget-bar-variable.budget-color-yellow { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-.budget-bar-variable.budget-color-orange { background: linear-gradient(90deg, #f97316, #fb923c); }
-.budget-bar-variable.budget-color-red { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+.budget-bar-variable.budget-color-green {
+  background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.budget-bar-variable.budget-color-yellow {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.budget-bar-variable.budget-color-orange {
+  background: linear-gradient(90deg, #f97316, #fb923c);
+}
+
+.budget-bar-variable.budget-color-red {
+  background: linear-gradient(90deg, #ef4444, #f87171);
+}
 
 .budget-details {
   display: flex;
@@ -1387,16 +1424,19 @@ body {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
 }
+
 .budget-detail-item {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
 }
+
 .budget-remaining {
   margin-left: auto;
   font-weight: 600;
   color: #10b981;
 }
+
 .budget-remaining.budget-over {
   color: #ef4444;
 }
@@ -1409,22 +1449,38 @@ body {
   gap: var(--spacing-lg);
   padding: var(--spacing-md) 0;
 }
+
 .summary-breakdown-item {
   display: flex;
   align-items: center;
   gap: var(--spacing-xs);
   font-size: var(--font-size-sm);
 }
+
 .breakdown-dot {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   flex-shrink: 0;
 }
-.breakdown-dot.fixed { background: rgba(255, 255, 255, 0.3); }
-.breakdown-dot.variable { background: linear-gradient(135deg, #667eea, #764ba2); }
-.breakdown-label { color: var(--text-secondary); }
-.breakdown-amount { color: var(--text-primary); font-weight: 600; margin-left: var(--spacing-xs); }
+
+.breakdown-dot.fixed {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.breakdown-dot.variable {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.breakdown-label {
+  color: var(--text-secondary);
+}
+
+.breakdown-amount {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-left: var(--spacing-xs);
+}
 
 /* ===================================
    予算設定
@@ -1453,24 +1509,48 @@ body {
   border-radius: var(--border-radius-md);
   transition: opacity var(--transition-normal);
 }
-.fixed-expense-item.inactive { opacity: 0.4; }
+
+.fixed-expense-item.inactive {
+  opacity: 0.4;
+}
+
 .fixed-expense-info {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
   flex-wrap: wrap;
 }
-.fixed-expense-name { font-weight: 600; color: var(--text-primary); }
-.fixed-expense-amount { color: #667eea; font-weight: 600; }
-.fixed-expense-category { color: var(--text-muted); font-size: var(--font-size-sm); }
+
+.fixed-expense-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.fixed-expense-amount {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.fixed-expense-category {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
 .fixed-expense-actions {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
 }
-.fixed-expense-add-form { margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid rgba(255, 255, 255, 0.1); }
 
-.toggle-sm { transform: scale(0.8); }
+.fixed-expense-add-form {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.toggle-sm {
+  transform: scale(0.8);
+}
 
 /* ===================================
    エクスポート
@@ -1481,6 +1561,7 @@ body {
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
 }
+
 .export-month-label {
   display: flex;
   align-items: center;
@@ -1494,12 +1575,17 @@ body {
   cursor: pointer;
   transition: all var(--transition-fast);
 }
+
 .export-month-label:has(input:checked) {
   background: rgba(102, 126, 234, 0.15);
   border-color: rgba(102, 126, 234, 0.3);
   color: var(--text-primary);
 }
-.export-actions { display: flex; gap: var(--spacing-sm); }
+
+.export-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
 
 /* ===================================
    デバッグ折り畳み
@@ -1507,6 +1593,7 @@ body {
 .debug-details {
   margin-bottom: var(--spacing-lg);
 }
+
 .debug-summary {
   color: var(--text-muted);
   font-size: var(--font-size-sm);
@@ -1516,18 +1603,44 @@ body {
   opacity: 0.5;
   transition: opacity var(--transition-fast);
 }
-.debug-summary:hover { opacity: 1; }
+
+.debug-summary:hover {
+  opacity: 1;
+}
 
 /* ===================================
    レスポンシブ追加
    =================================== */
 @media (max-width: 768px) {
-  .tab-btn { font-size: 0.75rem; padding: var(--spacing-xs) var(--spacing-sm); }
-  .budget-details { flex-direction: column; gap: var(--spacing-xs); }
-  .budget-remaining { margin-left: 0; }
-  .summary-breakdown { flex-direction: column; gap: var(--spacing-xs); }
-  .fixed-expense-item { flex-direction: column; align-items: flex-start; gap: var(--spacing-sm); }
-  .fixed-expense-actions { width: 100%; justify-content: flex-end; }
+  .tab-btn {
+    font-size: 0.75rem;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .budget-details {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .budget-remaining {
+    margin-left: 0;
+  }
+
+  .summary-breakdown {
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  .fixed-expense-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .fixed-expense-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 /* ===================================
@@ -1537,41 +1650,59 @@ body {
   vertical-align: middle;
   line-height: 1;
 }
+
 .icon-header {
   font-size: 1.8rem;
   vertical-align: text-bottom;
   margin-right: var(--spacing-xs);
 }
+
 .icon-tab {
   font-size: 1.1rem;
   vertical-align: text-bottom;
   margin-right: 2px;
 }
+
 .icon-title {
   font-size: 1.3rem;
   vertical-align: text-bottom;
   margin-right: var(--spacing-xs);
   color: var(--accent-primary);
 }
+
 .icon-btn {
   font-size: 1.1rem;
   vertical-align: text-bottom;
   margin-right: 4px;
 }
+
 .icon-summary {
   font-size: 1rem;
   vertical-align: text-bottom;
   margin-right: 4px;
 }
+
 .stat-icon .material-symbols-outlined {
   font-size: 2.5rem;
   color: var(--accent-primary);
 }
+
 @media (max-width: 768px) {
-  .icon-tab { font-size: 1rem; }
-  .icon-header { font-size: 1.4rem; }
-  .icon-title { font-size: 1.1rem; }
-  .stat-icon .material-symbols-outlined { font-size: 2rem; }
+  .icon-tab {
+    font-size: 1rem;
+  }
+
+  .icon-header {
+    font-size: 1.4rem;
+  }
+
+  .icon-title {
+    font-size: 1.1rem;
+  }
+
+  .stat-icon .material-symbols-outlined {
+    font-size: 2rem;
+  }
 }
 
 /* 定額消費 インライン金額編集 */
@@ -1581,9 +1712,11 @@ body {
   padding: 2px 6px;
   border-radius: var(--border-radius-sm);
 }
+
 .fixed-expense-amount:hover {
   background: rgba(102, 126, 234, 0.15);
 }
+
 .fixed-expense-edit-input {
   width: 120px;
   padding: 4px 8px !important;
