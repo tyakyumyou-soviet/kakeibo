@@ -121,7 +121,7 @@ body {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
+  padding: 0 var(--spacing-sm);
   overflow-x: hidden;
   animation: fadeIn 0.6s ease;
 }
@@ -1056,7 +1056,7 @@ input[type="datetime-local"] {
    =================================== */
 @media (max-width: 768px) {
   body {
-    padding: var(--spacing-sm);
+    padding: 4px;
   }
 
   .header {
@@ -1086,7 +1086,7 @@ input[type="datetime-local"] {
   }
 
   .card {
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
     overflow: hidden;
   }
 
