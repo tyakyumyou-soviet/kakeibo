@@ -12,9 +12,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    rel="stylesheet">
 
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    rel="stylesheet">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="styles.css">
@@ -54,10 +58,14 @@
 
     <!-- タブナビゲーション -->
     <nav class="tab-nav">
-      <button class="tab-btn active" data-tab="dashboard"><span class="material-symbols-outlined icon-tab">dashboard</span> ダッシュボード</button>
-      <button class="tab-btn" data-tab="expenses"><span class="material-symbols-outlined icon-tab">edit_note</span> 支出入力</button>
-      <button class="tab-btn" data-tab="analysis"><span class="material-symbols-outlined icon-tab">analytics</span> 分析</button>
-      <button class="tab-btn" data-tab="settings"><span class="material-symbols-outlined icon-tab">settings</span> 設定</button>
+      <button class="tab-btn active" data-tab="dashboard"><span
+          class="material-symbols-outlined icon-tab">dashboard</span> ダッシュボード</button>
+      <button class="tab-btn" data-tab="expenses"><span class="material-symbols-outlined icon-tab">edit_note</span>
+        支出入力</button>
+      <button class="tab-btn" data-tab="analysis"><span class="material-symbols-outlined icon-tab">analytics</span>
+        分析</button>
+      <button class="tab-btn" data-tab="settings"><span class="material-symbols-outlined icon-tab">settings</span>
+        設定</button>
     </nav>
 
     <!-- ========================================
@@ -224,7 +232,7 @@
         <div class="search-section">
           <div class="search-controls">
             <div class="form-group">
-              <input type="text" id="search-query" class="form-input" placeholder="🔍 説明やカテゴリで検索...">
+              <input type="text" id="search-query" class="form-input" placeholder="説明やカテゴリで検索...">
             </div>
 
             <div class="form-row">
@@ -240,8 +248,10 @@
             </div>
 
             <div class="search-actions">
-              <button class="btn btn-primary" onclick="applySearch()">🔍 検索</button>
-              <button class="btn btn-secondary" onclick="clearSearch()">✕ クリア</button>
+              <button class="btn btn-primary" onclick="applySearch()"><span
+                  class="material-symbols-outlined icon-btn">search</span> 検索</button>
+              <button class="btn btn-secondary" onclick="clearSearch()"><span
+                  class="material-symbols-outlined icon-btn">close</span> クリア</button>
             </div>
           </div>
         </div>
@@ -353,7 +363,7 @@
 
       <!-- 定額消費枠 -->
       <section class="card">
-        <h2 class="card-title">🔄 定額消費枠</h2>
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">sync</span> 定額消費枠</h2>
         <p style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">
           電気代・ガス代・家賃など、毎月必ず発生する固定費用を管理します。
         </p>
@@ -406,13 +416,15 @@
           <button class="btn btn-secondary btn-sm" onclick="deselectAllExportMonths()">全解除</button>
         </div>
 
-        <button class="btn btn-primary" onclick="exportToJSON()" style="margin-top: var(--spacing-md);"><span class="material-symbols-outlined icon-btn">download</span>
+        <button class="btn btn-primary" onclick="exportToJSON()" style="margin-top: var(--spacing-md);"><span
+            class="material-symbols-outlined icon-btn">download</span>
           JSONでエクスポート</button>
       </section>
 
       <!-- クレジットカード管理（折り畳み） -->
       <details class="debug-details">
-        <summary class="debug-summary"><span class="material-symbols-outlined icon-summary">credit_card</span> クレジットカード管理</summary>
+        <summary class="debug-summary"><span class="material-symbols-outlined icon-summary">credit_card</span>
+          クレジットカード管理</summary>
         <section class="card" style="margin-top: var(--spacing-md);">
           <div class="cards-list" id="cards-list">
             <div class="empty-state" id="cards-empty">まだクレジットカードが登録されていません</div>
@@ -525,7 +537,7 @@
 
         <!-- 検索バー -->
         <div class="form-group">
-          <input type="text" id="category-search" class="form-input" placeholder="🔍 カテゴリを検索...">
+          <input type="text" id="category-search" class="form-input" placeholder="カテゴリを検索...">
         </div>
 
         <!-- カテゴリリスト -->
@@ -539,7 +551,8 @@
             <div class="form-group" style="flex: 1;">
               <input type="text" id="new-category-name" class="form-input" placeholder="新しいカテゴリ名">
             </div>
-            <button class="btn btn-primary" onclick="addNewCategory()">➕ 追加</button>
+            <button class="btn btn-primary" onclick="addNewCategory()"><span
+                class="material-symbols-outlined icon-btn">add</span> 追加</button>
           </div>
         </div>
       </div>
