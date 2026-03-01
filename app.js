@@ -1,7 +1,7 @@
 // Firebase SDK v9 modular imports
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js';
 import {
-  getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc,
+  getFirestore, collection, addDoc, getDocs, getDoc, setDoc, deleteDoc, doc, updateDoc,
   query, where, orderBy, Timestamp
 } from 'https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js';
 
@@ -362,18 +362,21 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===================================
 async function getEffectiveBudget(yearMonth) {
   try {
-    // 1. 当月レコードを検索
-    const q = query(collection(db, 'budgets'), where('yearMonth', '==', yearMonth));
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      const d = snap.docs[0];
-      return { id: d.id, amount: d.data().amount, inherited: false };
+    // 1. 当月のドキュメントを直接取得（yearMonthをドキュメントIDとして使用）
+    const docRef = doc(db, 'budgets', yearMonth);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return { id: docSnap.id, amount: docSnap.data().amount, inherited: false };
     }
-    // 2. 過去最新を検索
-    const allSnap = await getDocs(query(collection(db, 'budgets'), orderBy('yearMonth', 'desc')));
-    for (const d of allSnap.docs) {
-      if (d.data().yearMonth < yearMonth) {
-        return { id: null, amount: d.data().amount, inherited: true };
+    // 2. 全budgetドキュメントを取得し、クライアント側で直近過去月を探す
+    const allSnap = await getDocs(collection(db, 'budgets'));
+    const allBudgets = [];
+    allSnap.forEach(d => allBudgets.push({ id: d.id, ...d.data() }));
+    // yearMonth（= ドキュメントID）で降順ソート
+    allBudgets.sort((a, b) => b.id.localeCompare(a.id));
+    for (const b of allBudgets) {
+      if (b.id < yearMonth) {
+        return { id: null, amount: b.amount, inherited: true };
       }
     }
     return { id: null, amount: null, inherited: false };
@@ -382,13 +385,9 @@ async function getEffectiveBudget(yearMonth) {
 
 async function saveBudget(yearMonth, amount) {
   try {
-    const q = query(collection(db, 'budgets'), where('yearMonth', '==', yearMonth));
-    const snap = await getDocs(q);
-    if (!snap.empty) {
-      await updateDoc(doc(db, 'budgets', snap.docs[0].id), { amount: Number(amount), updatedAt: Timestamp.now() });
-    } else {
-      await addDoc(collection(db, 'budgets'), { yearMonth, amount: Number(amount), createdAt: Timestamp.now(), updatedAt: Timestamp.now() });
-    }
+    // yearMonthをドキュメントIDとして使用 → 同月の重複を完全防止
+    const docRef = doc(db, 'budgets', yearMonth);
+    await setDoc(docRef, { amount: Number(amount), yearMonth, updatedAt: Timestamp.now() }, { merge: true });
     await loadBudgetForCurrentMonth();
   } catch (error) { console.error('予算保存エラー:', error); showToast('予算の保存に失敗しました', true); }
 }
