@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>家計簿アプリ</title>
+  <meta name="description" content="クレジットカード別に支出を管理できる家計簿アプリ。月別の閲覧や自動集計機能を搭載。">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- iOS PWA Support -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="家計簿">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#667eea">
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <!-- ヘッダー -->
+    <header class="header">
+      <h1><span class="material-symbols-outlined icon-header">account_balance_wallet</span> 家計簿アプリ</h1>
+
+      <div class="header-controls">
+        <!-- 月選択 -->
+        <div class="month-selector-wrapper">
+          <label for="month-selector" class="form-label">表示月</label>
+          <select id="month-selector" class="form-select">
+            <!-- JavaScriptで動的に生成 -->
+          </select>
+        </div>
+      </div>
+    </header>
+
+    <!-- タブナビゲーション -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="dashboard"><span class="material-symbols-outlined icon-tab">dashboard</span> ダッシュボード</button>
+      <button class="tab-btn" data-tab="expenses"><span class="material-symbols-outlined icon-tab">edit_note</span> 支出入力</button>
+      <button class="tab-btn" data-tab="analysis"><span class="material-symbols-outlined icon-tab">analytics</span> 分析</button>
+      <button class="tab-btn" data-tab="settings"><span class="material-symbols-outlined icon-tab">settings</span> 設定</button>
+    </nav>
+
+    <!-- ========================================
+         ダッシュボードタブ
+         ======================================== -->
+    <div class="tab-content active" id="tab-dashboard">
+
+      <!-- サマリー -->
+      <section class="card">
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">payments</span> 支出サマリー</h2>
+
+        <div class="summary-section">
+          <div class="summary-item summary-total">
+            <div class="summary-label">総合計</div>
+            <div class="summary-amount" id="total-amount">¥0</div>
+          </div>
+        </div>
+
+        <!-- 固定費/変動費 内訳 -->
+        <div class="summary-breakdown">
+          <div class="summary-breakdown-item">
+            <span class="breakdown-dot fixed"></span>
+            <span class="breakdown-label">固定費</span>
+            <span class="breakdown-amount" id="fixed-total">¥0</span>
+          </div>
+          <div class="summary-breakdown-item">
+            <span class="breakdown-dot variable"></span>
+            <span class="breakdown-label">変動費</span>
+            <span class="breakdown-amount" id="variable-total">¥0</span>
+          </div>
+        </div>
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-section">
+          <h3 class="summary-subtitle">クレジットカード別</h3>
+          <div id="card-summaries" class="card-summaries-grid">
+            <!-- クレカ別サマリーはJavaScriptで動的に生成 -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 予算状況 -->
+      <section class="card">
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">account_balance</span> 予算状況</h2>
+        <div class="budget-status">
+          <div class="budget-header">
+            <span>今月の予算</span>
+            <span id="budget-amount-display">未設定</span>
+          </div>
+          <span class="budget-inherited" id="budget-inherited-label" style="display: none;">前月から継承</span>
+          <div class="budget-progress">
+            <div class="budget-bar-fixed" id="budget-bar-fixed"></div>
+            <div class="budget-bar-variable" id="budget-bar-variable"></div>
+          </div>
+          <div class="budget-details">
+            <div class="budget-detail-item">
+              <span class="breakdown-dot fixed"></span>
+              <span>固定費: <strong id="budget-fixed-amount">¥0</strong></span>
+            </div>
+            <div class="budget-detail-item">
+              <span class="breakdown-dot variable"></span>
+              <span>変動費: <strong id="budget-variable-amount">¥0</strong></span>
+            </div>
+            <div class="budget-detail-item budget-remaining">
+              <span id="budget-remaining">残り: -</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 統計情報 -->
+      <section class="card">
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">query_stats</span> 統計情報</h2>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><span class="material-symbols-outlined">payments</span></div>
+            <div class="stat-content">
+              <div class="stat-label">今月の支出</div>
+              <div class="stat-value" id="stat-current-month">¥0</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon"><span class="material-symbols-outlined">bar_chart</span></div>
+            <div class="stat-content">
+              <div class="stat-label">月平均支出</div>
+              <div class="stat-value" id="stat-avg-monthly">¥0</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon"><span class="material-symbols-outlined">trending_down</span></div>
+            <div class="stat-content">
+              <div class="stat-label">前月比</div>
+              <div class="stat-value stat-comparison" id="stat-month-comparison">-</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon"><span class="material-symbols-outlined">category</span></div>
+            <div class="stat-content">
+              <div class="stat-label">最多カテゴリ</div>
+              <div class="stat-value" id="stat-top-category">-</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========================================
+         支出入力タブ
+         ======================================== -->
+    <div class="tab-content" id="tab-expenses">
+
+      <!-- 支出を追加 -->
+      <section class="card">
+        <h2 class="card-title">支出を追加</h2>
+
+        <form id="add-expense-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="expense-card" class="form-label">クレジットカード</label>
+              <select id="expense-card" class="form-select" required>
+                <option value="">カードを選択してください</option>
+                <!-- カード一覧はJavaScriptで動的に生成 -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="expense-amount" class="form-label">金額</label>
+              <input type="number" id="expense-amount" class="form-input" placeholder="例: 1500" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="expense-category" class="form-label">カテゴリ</label>
+              <input type="text" id="expense-category" class="form-input" placeholder="カテゴリを選択" required readonly
+                onclick="openCategoryModal('expense-category')">
+            </div>
+
+            <div class="form-group">
+              <label for="expense-date" class="form-label">日付</label>
+              <input type="date" id="expense-date" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="expense-description" class="form-label">説明(任意)</label>
+            <textarea id="expense-description" class="form-textarea" placeholder="例: スーパーで買い物"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-success">支出を追加</button>
+        </form>
+      </section>
+
+      <!-- 支出一覧 -->
+      <section class="card">
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">receipt_long</span> 支出一覧</h2>
+
+        <!-- 検索フィルター -->
+        <div class="search-section">
+          <div class="search-controls">
+            <div class="form-group">
+              <input type="text" id="search-query" class="form-input" placeholder="🔍 説明やカテゴリで検索...">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="search-from" class="form-label">期間（開始）</label>
+                <input type="date" id="search-from" class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label for="search-to" class="form-label">期間（終了）</label>
+                <input type="date" id="search-to" class="form-input">
+              </div>
+            </div>
+
+            <div class="search-actions">
+              <button class="btn btn-primary" onclick="applySearch()">🔍 検索</button>
+              <button class="btn btn-secondary" onclick="clearSearch()">✕ クリア</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- カードフィルター -->
+        <div class="expense-filter">
+          <label for="expense-filter-card">表示フィルター</label>
+          <select id="expense-filter-card" class="form-select">
+            <option value="all">すべてのカード</option>
+            <!-- カード一覧はJavaScriptで動的に生成 -->
+          </select>
+        </div>
+
+        <div class="table-container">
+          <table class="expense-table">
+            <thead>
+              <tr>
+                <th>日付</th>
+                <th>カード</th>
+                <th>カテゴリ</th>
+                <th>説明</th>
+                <th>金額</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="expenses-list">
+              <tr>
+                <td colspan="6" class="empty-state">まだ支出が登録されていません</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========================================
+         分析タブ
+         ======================================== -->
+    <div class="tab-content" id="tab-analysis">
+
+      <!-- グラフ -->
+      <section class="card">
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">show_chart</span> 支出推移</h2>
+
+        <!-- 期間選択 -->
+        <div class="chart-controls">
+          <label for="chart-period">表示期間</label>
+          <select id="chart-period" class="form-select">
+            <option value="4" selected>直近4ヶ月</option>
+            <option value="6">直近6ヶ月</option>
+            <option value="12">直近12ヶ月</option>
+          </select>
+        </div>
+
+        <!-- 総合計グラフ -->
+        <div class="chart-container">
+          <h3 class="chart-subtitle">総合計</h3>
+          <canvas id="total-chart"></canvas>
+        </div>
+
+        <!-- クレカ別グラフ -->
+        <div class="chart-container">
+          <h3 class="chart-subtitle">クレジットカード別</h3>
+          <canvas id="cards-chart"></canvas>
+        </div>
+      </section>
+
+      <!-- カテゴリ別グラフ -->
+      <section class="card">
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">donut_small</span> カテゴリ別分析</h2>
+
+        <div class="chart-grid">
+          <div class="chart-container">
+            <h3 class="chart-subtitle">カテゴリ別割合</h3>
+            <canvas id="category-pie-chart"></canvas>
+          </div>
+
+          <div class="chart-container">
+            <h3 class="chart-subtitle">カテゴリ別支出額</h3>
+            <canvas id="category-bar-chart"></canvas>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========================================
+         設定タブ
+         ======================================== -->
+    <div class="tab-content" id="tab-settings">
+
+
+      <!-- 予算設定 -->
+      <section class="card">
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">savings</span> 予算設定</h2>
+        <div class="budget-setting">
+          <div class="budget-setting-header">
+            <span id="budget-setting-month">2026年3月</span>
+            <span class="budget-inherited" id="budget-setting-inherited" style="display: none;">前月から継承</span>
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label for="budget-amount-input" class="form-label">月の予算額</label>
+              <input type="number" id="budget-amount-input" class="form-input" placeholder="例: 150000" min="0">
+            </div>
+            <button type="button" class="btn btn-primary" id="save-budget-btn">保存</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 定額消費枠 -->
+      <section class="card">
+        <h2 class="card-title">🔄 定額消費枠</h2>
+        <p style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">
+          電気代・ガス代・家賃など、毎月必ず発生する固定費用を管理します。
+        </p>
+
+        <div id="fixed-expenses-list">
+          <div class="empty-state" id="fixed-expenses-empty">定額消費はまだ登録されていません</div>
+        </div>
+
+        <form id="add-fixed-expense-form" class="fixed-expense-add-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fixed-expense-name" class="form-label">項目名</label>
+              <input type="text" id="fixed-expense-name" class="form-input" placeholder="例: 家賃" required>
+            </div>
+            <div class="form-group">
+              <label for="fixed-expense-amount" class="form-label">金額</label>
+              <input type="number" id="fixed-expense-amount" class="form-input" placeholder="例: 80000" min="0" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fixed-expense-card" class="form-label">カード</label>
+              <select id="fixed-expense-card" class="form-select" required>
+                <option value="">カードを選択</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="fixed-expense-category" class="form-label">カテゴリ</label>
+              <input type="text" id="fixed-expense-category" class="form-input" placeholder="カテゴリを選択" required readonly
+                onclick="openCategoryModal('fixed-expense-category')">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary">定額消費を追加</button>
+        </form>
+      </section>
+
+      <!-- JSONエクスポート -->
+      <section class="card">
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">download</span> データエクスポート</h2>
+        <p style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">
+          選択した月のデータをJSON形式でダウンロードします。
+        </p>
+
+        <div class="export-months" id="export-months">
+          <!-- JavaScriptで動的に生成 -->
+        </div>
+
+        <div class="export-actions">
+          <button class="btn btn-secondary btn-sm" onclick="selectAllExportMonths()">全選択</button>
+          <button class="btn btn-secondary btn-sm" onclick="deselectAllExportMonths()">全解除</button>
+        </div>
+
+        <button class="btn btn-primary" onclick="exportToJSON()" style="margin-top: var(--spacing-md);"><span class="material-symbols-outlined icon-btn">download</span>
+          JSONでエクスポート</button>
+      </section>
+
+      <!-- クレジットカード管理（折り畳み） -->
+      <details class="debug-details">
+        <summary class="debug-summary"><span class="material-symbols-outlined icon-summary">credit_card</span> クレジットカード管理</summary>
+        <section class="card" style="margin-top: var(--spacing-md);">
+          <div class="cards-list" id="cards-list">
+            <div class="empty-state" id="cards-empty">まだクレジットカードが登録されていません</div>
+          </div>
+
+          <form id="add-card-form" class="card-add-form">
+            <div class="form-group">
+              <label for="card-name" class="form-label">カード名</label>
+              <input type="text" id="card-name" class="form-input" placeholder="例: 楽天カード" required>
+            </div>
+            <button type="submit" class="btn btn-primary">追加</button>
+          </form>
+        </section>
+      </details>
+
+      <!-- デバッグモード（折り畳み式） -->
+      <details class="debug-details">
+        <summary class="debug-summary">開発者オプション</summary>
+        <section class="card" style="margin-top: var(--spacing-md);">
+          <div class="debug-header">
+            <h2 class="card-title"><span class="material-symbols-outlined icon-title">build</span> デバッグモード</h2>
+            <label class="toggle-switch">
+              <input type="checkbox" id="debug-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div id="debug-panel" class="debug-panel">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="debug-date" class="form-label">デバッグ日付</label>
+                <input type="date" id="debug-date" class="form-input">
+              </div>
+              <div class="form-group">
+                <button id="apply-debug-date" class="btn btn-warning">日付を適用</button>
+              </div>
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem;">
+              ※ デバッグ日付を設定すると、その日付を基準に月が自動設定されます
+            </p>
+          </div>
+        </section>
+      </details>
+    </div>
+
+    <!-- ========================================
+         モーダル群
+         ======================================== -->
+
+    <!-- 編集モーダル -->
+    <div id="edit-modal" class="modal">
+      <div class="modal-overlay" onclick="closeEditModal()"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>支出を編集</h2>
+          <button class="modal-close" onclick="closeEditModal()">×</button>
+        </div>
+
+        <form id="edit-expense-form">
+          <input type="hidden" id="edit-expense-id">
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="edit-expense-card" class="form-label">クレジットカード</label>
+              <select id="edit-expense-card" class="form-select" required>
+                <!-- JavaScriptで動的に生成 -->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-expense-amount" class="form-label">金額</label>
+              <input type="number" id="edit-expense-amount" class="form-input" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="edit-expense-category" class="form-label">カテゴリ</label>
+              <input type="text" id="edit-expense-category" class="form-input" required readonly
+                onclick="openCategoryModal('edit-expense-category')">
+            </div>
+
+            <div class="form-group">
+              <label for="edit-expense-date" class="form-label">日付</label>
+              <input type="date" id="edit-expense-date" class="form-input" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-expense-description" class="form-label">説明(任意)</label>
+            <textarea id="edit-expense-description" class="form-textarea"></textarea>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeEditModal()">キャンセル</button>
+            <button type="submit" class="btn btn-success">更新</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- カテゴリ選択モーダル -->
+    <div id="category-modal" class="modal">
+      <div class="modal-overlay" onclick="closeCategoryModal()"></div>
+      <div class="modal-content category-modal-content">
+        <div class="modal-header">
+          <h2>カテゴリを選択</h2>
+          <button class="modal-close" onclick="closeCategoryModal()">×</button>
+        </div>
+
+        <!-- 検索バー -->
+        <div class="form-group">
+          <input type="text" id="category-search" class="form-input" placeholder="🔍 カテゴリを検索...">
+        </div>
+
+        <!-- カテゴリリスト -->
+        <div class="category-list" id="category-list-modal">
+          <!-- JavaScriptで動的に生成 -->
+        </div>
+
+        <!-- 新規カテゴリ追加 -->
+        <div class="category-add-section">
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <input type="text" id="new-category-name" class="form-input" placeholder="新しいカテゴリ名">
+            </div>
+            <button class="btn btn-primary" onclick="addNewCategory()">➕ 追加</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- カテゴリ削除確認モーダル -->
+    <div id="delete-category-modal" class="modal">
+      <div class="modal-overlay" onclick="closeDeleteCategoryModal()"></div>
+      <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+          <h2>カテゴリを削除</h2>
+          <button class="modal-close" onclick="closeDeleteCategoryModal()">×</button>
+        </div>
+
+        <p style="margin: var(--spacing-lg) 0; color: var(--text-secondary);">
+          カテゴリ「<span id="delete-category-name"
+            style="color: var(--text-primary); font-weight: 600;"></span>」を削除してもよろしいですか？
+        </p>
+
+        <input type="hidden" id="delete-category-id">
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeDeleteCategoryModal()">キャンセル</button>
+          <button type="button" class="btn btn-danger" onclick="confirmDeleteCategory()">削除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 支出削除確認モーダル -->
+    <div id="delete-expense-modal" class="modal">
+      <div class="modal-overlay" onclick="closeDeleteExpenseModal()"></div>
+      <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+          <h2>支出を削除</h2>
+          <button class="modal-close" onclick="closeDeleteExpenseModal()">×</button>
+        </div>
+
+        <p style="margin: var(--spacing-lg) 0; color: var(--text-secondary);">
+          この支出を削除してもよろしいですか？
+        </p>
+
+        <div id="delete-expense-details"
+          style="margin: var(--spacing-md) 0; padding: var(--spacing-md); background: rgba(255, 255, 255, 0.05); border-radius: var(--border-radius-sm);">
+          <!-- 支出の詳細がここに表示される -->
+        </div>
+
+        <input type="hidden" id="delete-expense-id">
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeDeleteExpenseModal()">キャンセル</button>
+          <button type="button" class="btn btn-danger" onclick="confirmDeleteExpense()">削除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- クレジットカード削除確認モーダル -->
+    <div id="delete-card-modal" class="modal">
+      <div class="modal-overlay" onclick="closeDeleteCardModal()"></div>
+      <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+          <h2>カードを削除</h2>
+          <button class="modal-close" onclick="closeDeleteCardModal()">×</button>
+        </div>
+
+        <p style="margin: var(--spacing-lg) 0; color: var(--text-secondary);">
+          カード「<span id="delete-card-name" style="color: var(--text-primary); font-weight: 600;"></span>」を削除してもよろしいですか？
+        </p>
+
+        <input type="hidden" id="delete-card-id">
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeDeleteCardModal()">キャンセル</button>
+          <button type="button" class="btn btn-danger" onclick="confirmDeleteCard()">削除</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 定額消費削除確認モーダル -->
+    <div id="delete-fixed-expense-modal" class="modal">
+      <div class="modal-overlay" onclick="closeDeleteFixedExpenseModal()"></div>
+      <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+          <h2>定額消費を削除</h2>
+          <button class="modal-close" onclick="closeDeleteFixedExpenseModal()">×</button>
+        </div>
+
+        <p style="margin: var(--spacing-lg) 0; color: var(--text-secondary);">
+          「<span id="delete-fixed-expense-name"
+            style="color: var(--text-primary); font-weight: 600;"></span>」を削除してもよろしいですか？
+        </p>
+
+        <input type="hidden" id="delete-fixed-expense-id">
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeDeleteFixedExpenseModal()">キャンセル</button>
+          <button type="button" class="btn btn-danger" onclick="confirmDeleteFixedExpense()">削除</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Firebase SDK (v9 modular) -->
+  <script type="module" src="app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('Service Worker 登録成功:', registration.scope);
+
+            // 更新を検知
+            registration.addEventListener('updatefound', () => {
+              const newWorker = registration.installing;
+              newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'activated') {
+                  // 既存のService Workerがある場合は通知
+                  if (navigator.serviceWorker.controller) {
+                    console.log('新しいバージョンが利用可能です');
+                    // 自動的にページをリロード
+                    window.location.reload();
+                  }
+                }
+              });
+            });
+          })
+          .catch((error) => {
+            console.log('Service Worker 登録失敗:', error);
+          });
+      });
+    }
+  </script>
+</body>
+
+</html>

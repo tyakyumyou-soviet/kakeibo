@@ -1,0 +1,1591 @@
+/* ===================================
+   デザインシステム - CSS変数
+   =================================== */
+:root {
+  /* カラーパレット */
+  --bg-primary: #0a0f1e;
+  --bg-secondary: #151b2e;
+  --bg-card: rgba(30, 41, 67, 0.6);
+  --bg-glass: rgba(255, 255, 255, 0.05);
+
+  --text-primary: #ffffff;
+  --text-secondary: #b4b8d1;
+  --text-muted: #6b7280;
+
+  --accent-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --accent-success: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  --accent-warning: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  --accent-danger: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  --accent-info: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+
+  /* スペーシング */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+
+  /* タイポグラフィ */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+
+  /* ボーダー */
+  --border-radius-sm: 0.5rem;
+  --border-radius-md: 0.75rem;
+  --border-radius-lg: 1rem;
+
+  /* シャドウ */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-glow: 0 0 20px rgba(102, 126, 234, 0.3);
+
+  /* トランジション */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/* ===================================
+   検索セクション
+   =================================== */
+.search-section {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+}
+
+.search-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.search-actions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.search-actions .btn {
+  flex: 1;
+}
+
+/* ===================================
+   グローバルスタイル
+   =================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: #0a0f1e !important;
+  background-color: #0a0f1e !important;
+  min-height: 100vh;
+}
+
+html::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #0a0f1e 0%, #1a1f3a 100%);
+  background-color: #0a0f1e;
+  z-index: -9999;
+}
+
+body {
+  font-family: var(--font-family);
+  background: #0a0f1e !important;
+  background-color: #0a0f1e !important;
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding: var(--spacing-lg);
+  position: relative;
+}
+
+/* ===================================
+   コンテナ
+   =================================== */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  animation: fadeIn 0.6s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================================
+   ヘッダー
+   =================================== */
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg) 0;
+}
+
+.header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--spacing-md);
+  text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+}
+
+.header-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-md);
+}
+
+.month-selector-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.debug-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.debug-toggle-wrapper:hover {
+  opacity: 1;
+}
+
+/* ===================================
+   カードコンポーネント
+   =================================== */
+.card {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.card-title {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  margin-bottom: var(--spacing-lg);
+  color: var(--text-primary);
+  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+  padding-bottom: var(--spacing-sm);
+}
+
+/* ===================================
+   サマリーセクション
+   =================================== */
+.summary-section {
+  padding: var(--spacing-md) 0;
+}
+
+.summary-item {
+  text-align: center;
+}
+
+.summary-total .summary-label {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-sm);
+}
+
+.summary-total .summary-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: countUp 0.5s ease;
+}
+
+.summary-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+  margin: var(--spacing-lg) 0;
+}
+
+.summary-subtitle {
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.card-summaries-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.card-summaries-grid .summary-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-md);
+  text-align: center;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.card-summaries-grid .summary-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.card-summaries-grid .summary-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
+.card-summaries-grid .summary-amount {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===================================
+   フォーム要素
+   =================================== */
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family);
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: rgba(102, 126, 234, 0.5);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.form-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+/* ===================================
+   ボタン
+   =================================== */
+.btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  font-family: var(--font-family);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width var(--transition-normal), height var(--transition-normal);
+}
+
+.btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover {
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.btn-warning:hover {
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+}
+
+.btn-sm {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-sm);
+}
+
+/* ===================================
+   統計情報
+   =================================== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.card-filter-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  max-height: 200px;
+  overflow-y: auto;
+  padding: var(--spacing-xs);
+}
+
+.card-filter-item {
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: var(--font-size-sm);
+}
+
+.card-filter-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+  transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stat-value {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-comparison {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.stat-comparison.positive {
+  color: #ef4444;
+}
+
+.stat-comparison.negative {
+  color: #10b981;
+}
+
+/* ===================================
+   クレジットカードバッジ
+   =================================== */
+.cards-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.card-add-form {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.card-add-form .form-group {
+  flex: 1;
+  min-width: 200px;
+  margin-bottom: 0;
+}
+
+.card-add-form .btn {
+  white-space: nowrap;
+}
+
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: 9999px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform var(--transition-fast);
+}
+
+.card-badge:hover {
+  transform: scale(1.05);
+}
+
+.card-color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.card-badge-delete {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0;
+  margin-left: var(--spacing-xs);
+  font-size: 1rem;
+  transition: color var(--transition-fast);
+}
+
+.card-badge-delete:hover {
+  color: #ef4444;
+}
+
+/* ===================================
+   テーブル
+   =================================== */
+.table-container {
+  overflow-x: auto;
+  border-radius: var(--border-radius-md);
+  background: var(--bg-glass);
+  backdrop-filter: blur(10px);
+}
+
+.expense-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.expense-table thead {
+  background: rgba(102, 126, 234, 0.1);
+  border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.expense-table th {
+  padding: var(--spacing-md);
+  text-align: left;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.expense-table td {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.expense-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.expense-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.expense-table .amount {
+  font-weight: 600;
+  font-size: var(--font-size-lg);
+}
+
+/* 支出フィルター */
+.expense-filter {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--border-radius-sm);
+}
+
+.expense-filter label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.expense-filter .form-select {
+  max-width: 250px;
+}
+
+/* ===================================
+   デバッグモード
+   =================================== */
+.debug-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.debug-header .card-title {
+  margin-bottom: 0;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.debug-panel {
+  display: none;
+}
+
+.debug-panel.active {
+  display: block;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.debug-label {
+  color: #f59e0b;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.debug-label::before {
+  content: '';
+  font-size: 1rem;
+}
+
+/* ===================================
+   グラフ
+   =================================== */
+.chart-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--border-radius-sm);
+}
+
+.chart-controls label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.chart-controls .form-select {
+  max-width: 200px;
+}
+
+.chart-container {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: var(--border-radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.chart-container:last-child {
+  margin-bottom: 0;
+}
+
+.chart-subtitle {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.chart-container canvas {
+  max-height: 400px;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--spacing-xl);
+}
+
+/* ===================================
+   ボタンバリエーション
+   =================================== */
+.btn-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+}
+
+/* ===================================
+   モーダル
+   =================================== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease;
+  z-index: 2001;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+  font-size: var(--font-size-xl);
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: flex-end;
+  margin-top: var(--spacing-xl);
+}
+
+/* カテゴリモーダル */
+.category-modal-content {
+  max-width: 500px;
+}
+
+.category-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin: var(--spacing-md) 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-md);
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all var(--transition-fast);
+}
+
+.category-item:last-child {
+  border-bottom: none;
+}
+
+.category-item:hover {
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.category-name {
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  cursor: pointer;
+  flex: 1;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.category-name:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: translateX(4px);
+}
+
+.category-actions {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.btn-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.btn-icon-danger:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.category-icon {
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+}
+
+.category-add-section {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.category-add-section .form-row {
+  margin-bottom: 0;
+}
+
+/* ===================================
+   トグルスイッチ
+   =================================== */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  transition: var(--transition-normal);
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toggle-slider::before {
+  position: absolute;
+  content: '';
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 2px;
+  background: white;
+  transition: var(--transition-normal);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked+.toggle-slider {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.toggle-switch input:checked+.toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* ===================================
+   ユーティリティクラス
+   =================================== */
+.text-center {
+  text-align: center;
+}
+
+.mt-lg {
+  margin-top: var(--spacing-lg);
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--spacing-2xl);
+  color: var(--text-muted);
+  font-size: var(--font-size-lg);
+}
+
+.empty-state::before {
+  content: '';
+  display: block;
+  font-size: 4rem;
+  margin-bottom: var(--spacing-md);
+  opacity: 0.5;
+}
+
+/* ===================================
+   レスポンシブデザイン
+   =================================== */
+@media (max-width: 768px) {
+  body {
+    padding: var(--spacing-sm);
+  }
+
+  .header {
+    margin-bottom: var(--spacing-md);
+    padding: var(--spacing-md) 0;
+  }
+
+  .header h1 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .header-controls {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+  }
+
+  .month-selector-wrapper,
+  .debug-toggle-wrapper {
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .card {
+    padding: var(--spacing-md);
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .expense-table {
+    font-size: var(--font-size-sm);
+  }
+
+  .expense-table th,
+  .expense-table td {
+    padding: var(--spacing-sm);
+  }
+
+  /* スマホではテーブルをカード型UIに変更 */
+  .table-container {
+    background: transparent;
+  }
+
+  .expense-table {
+    display: block;
+  }
+
+  .expense-table thead {
+    display: none;
+  }
+
+  .expense-table tbody {
+    display: block;
+  }
+
+  .expense-table tr {
+    display: block;
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .expense-table tr:hover {
+    background: var(--bg-card);
+  }
+
+  .expense-table td {
+    display: block;
+    text-align: left;
+    padding: var(--spacing-xs) 0;
+    border: none;
+  }
+
+  .expense-table td::before {
+    content: attr(data-label);
+    display: inline-block;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: var(--font-size-sm);
+    margin-right: var(--spacing-sm);
+    min-width: 70px;
+  }
+
+  .expense-table td:last-child {
+    margin-top: var(--spacing-xs);
+    padding-top: var(--spacing-xs);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .expense-filter {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .expense-filter .form-select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .chart-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .chart-controls .form-select {
+    width: 100%;
+    max-width: none;
+  }
+
+  .chart-container canvas {
+    max-height: 220px;
+    max-width: 100%;
+  }
+
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* サマリーをコンパクトに */
+  .summary-section {
+    padding: var(--spacing-xs) 0;
+  }
+
+  .summary-total .summary-label {
+    margin-bottom: 0.25rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .summary-total .summary-amount {
+    font-size: 1.75rem;
+  }
+
+  /* 支出一覧 */
+  .expense-filter {
+    margin-bottom: var(--spacing-md);
+  }
+
+  /* 支出一覧を4件まで表示してスクロール */
+  .table-container {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .expense-table {
+    font-size: var(--font-size-sm);
+  }
+
+  .summary-divider {
+    margin: var(--spacing-xs) 0;
+  }
+
+  .summary-subtitle {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .card-summaries-grid {
+    gap: var(--spacing-xs);
+  }
+
+  .card-summaries-grid .summary-card {
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .card-summaries-grid .summary-label {
+    font-size: 0.75rem;
+    margin-bottom: 0.125rem;
+  }
+
+  .card-summaries-grid .summary-amount {
+    font-size: var(--font-size-md);
+  }
+
+  /* 支出一覧をさらにコンパクトに */
+  .expense-table td {
+    padding: 0.25rem 0;
+    font-size: var(--font-size-sm);
+  }
+
+  .expense-table td::before {
+    font-size: 0.75rem;
+    min-width: 60px;
+  }
+
+  /* カード列を非表示 */
+  .expense-table td[data-label="カード"] {
+    display: none;
+  }
+
+  /* 統計情報 */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .stat-card {
+    padding: var(--spacing-md);
+  }
+
+  .stat-icon {
+    font-size: 2rem;
+  }
+
+  .stat-value {
+    font-size: var(--font-size-lg);
+  }
+
+  /* カテゴリ別グラフ */
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* ===================================
+   タブナビゲーション
+   =================================== */
+.tab-nav {
+  display: flex;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-xs);
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.tab-nav::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  flex: 1;
+  min-width: max-content;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius-md);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  white-space: nowrap;
+  position: relative;
+}
+.tab-btn:hover {
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+}
+.tab-btn.active {
+  color: var(--text-primary);
+  background: rgba(102, 126, 234, 0.15);
+  box-shadow: 0 0 12px rgba(102, 126, 234, 0.2);
+}
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  border-radius: 1px;
+}
+
+.tab-content {
+  display: none;
+  animation: tabFadeIn 0.3s ease;
+}
+.tab-content.active {
+  display: block;
+}
+@keyframes tabFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===================================
+   予算状況
+   =================================== */
+.budget-status {
+  padding: var(--spacing-md) 0;
+}
+.budget-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+}
+.budget-header span:last-child {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.budget-inherited {
+  display: inline-block;
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: var(--border-radius-sm);
+  margin-bottom: var(--spacing-sm);
+}
+.budget-progress {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  margin-bottom: var(--spacing-md);
+}
+.budget-bar-fixed {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  transition: width 0.5s ease;
+}
+.budget-bar-variable {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.5s ease;
+}
+.budget-bar-variable.budget-color-green { background: linear-gradient(90deg, #10b981, #34d399); }
+.budget-bar-variable.budget-color-yellow { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+.budget-bar-variable.budget-color-orange { background: linear-gradient(90deg, #f97316, #fb923c); }
+.budget-bar-variable.budget-color-red { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+.budget-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.budget-detail-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+.budget-remaining {
+  margin-left: auto;
+  font-weight: 600;
+  color: #10b981;
+}
+.budget-remaining.budget-over {
+  color: #ef4444;
+}
+
+/* ===================================
+   固定費/変動費 内訳
+   =================================== */
+.summary-breakdown {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
+}
+.summary-breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+.breakdown-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.breakdown-dot.fixed { background: rgba(255, 255, 255, 0.3); }
+.breakdown-dot.variable { background: linear-gradient(135deg, #667eea, #764ba2); }
+.breakdown-label { color: var(--text-secondary); }
+.breakdown-amount { color: var(--text-primary); font-weight: 600; margin-left: var(--spacing-xs); }
+
+/* ===================================
+   予算設定
+   =================================== */
+.budget-setting-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ===================================
+   定額消費枠
+   =================================== */
+.fixed-expense-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--border-radius-md);
+  transition: opacity var(--transition-normal);
+}
+.fixed-expense-item.inactive { opacity: 0.4; }
+.fixed-expense-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+.fixed-expense-name { font-weight: 600; color: var(--text-primary); }
+.fixed-expense-amount { color: #667eea; font-weight: 600; }
+.fixed-expense-category { color: var(--text-muted); font-size: var(--font-size-sm); }
+.fixed-expense-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+.fixed-expense-add-form { margin-top: var(--spacing-lg); padding-top: var(--spacing-lg); border-top: 1px solid rgba(255, 255, 255, 0.1); }
+
+.toggle-sm { transform: scale(0.8); }
+
+/* ===================================
+   エクスポート
+   =================================== */
+.export-months {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+.export-month-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.export-month-label:has(input:checked) {
+  background: rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+  color: var(--text-primary);
+}
+.export-actions { display: flex; gap: var(--spacing-sm); }
+
+/* ===================================
+   デバッグ折り畳み
+   =================================== */
+.debug-details {
+  margin-bottom: var(--spacing-lg);
+}
+.debug-summary {
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  text-align: center;
+  opacity: 0.5;
+  transition: opacity var(--transition-fast);
+}
+.debug-summary:hover { opacity: 1; }
+
+/* ===================================
+   レスポンシブ追加
+   =================================== */
+@media (max-width: 768px) {
+  .tab-btn { font-size: 0.75rem; padding: var(--spacing-xs) var(--spacing-sm); }
+  .budget-details { flex-direction: column; gap: var(--spacing-xs); }
+  .budget-remaining { margin-left: 0; }
+  .summary-breakdown { flex-direction: column; gap: var(--spacing-xs); }
+  .fixed-expense-item { flex-direction: column; align-items: flex-start; gap: var(--spacing-sm); }
+  .fixed-expense-actions { width: 100%; justify-content: flex-end; }
+}
+
+/* ===================================
+   Material Symbols アイコンユーティリティ
+   =================================== */
+.material-symbols-outlined {
+  vertical-align: middle;
+  line-height: 1;
+}
+.icon-header {
+  font-size: 1.8rem;
+  vertical-align: text-bottom;
+  margin-right: var(--spacing-xs);
+}
+.icon-tab {
+  font-size: 1.1rem;
+  vertical-align: text-bottom;
+  margin-right: 2px;
+}
+.icon-title {
+  font-size: 1.3rem;
+  vertical-align: text-bottom;
+  margin-right: var(--spacing-xs);
+  color: var(--accent-primary);
+}
+.icon-btn {
+  font-size: 1.1rem;
+  vertical-align: text-bottom;
+  margin-right: 4px;
+}
+.icon-summary {
+  font-size: 1rem;
+  vertical-align: text-bottom;
+  margin-right: 4px;
+}
+.stat-icon .material-symbols-outlined {
+  font-size: 2.5rem;
+  color: var(--accent-primary);
+}
+@media (max-width: 768px) {
+  .icon-tab { font-size: 1rem; }
+  .icon-header { font-size: 1.4rem; }
+  .icon-title { font-size: 1.1rem; }
+  .stat-icon .material-symbols-outlined { font-size: 2rem; }
+}
+
+/* 定額消費 インライン金額編集 */
+.fixed-expense-amount {
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  padding: 2px 6px;
+  border-radius: var(--border-radius-sm);
+}
+.fixed-expense-amount:hover {
+  background: rgba(102, 126, 234, 0.15);
+}
+.fixed-expense-edit-input {
+  width: 120px;
+  padding: 4px 8px !important;
+  font-size: var(--font-size-sm) !important;
+}
