@@ -129,7 +129,7 @@ function initMonthSelector() {
   selector.addEventListener('change', async (e) => {
     currentYearMonth = e.target.value;
     await loadExpenses();
-    updateBudgetSettingUI();
+    await loadBudgetForCurrentMonth();
   });
 }
 
