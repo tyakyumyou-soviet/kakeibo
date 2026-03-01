@@ -38,6 +38,16 @@ let searchTo = null;
 let categoryPieChart = null;
 let categoryBarChart = null;
 
+// トースト通知
+function showToast(message, isError = false) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast' + (isError ? ' error' : '');
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
 const DEFAULT_CATEGORIES = [
   '食費', '交通費', '娯楽', '日用品', '医療費',
   '通信費', '光熱費', '住居費', '教育費', 'その他'
@@ -151,7 +161,7 @@ function initDebugMode() {
       debugDate = dateInput.value;
       initMonthSelector();
       loadExpenses();
-      alert(`デバッグ日付を ${debugDate} に設定しました`);
+      showToast(`デバッグ日付を ${debugDate} に設定しました`);
     }
   });
 }
@@ -168,7 +178,7 @@ async function addCreditCard(name) {
     return docRef.id;
   } catch (error) {
     console.error('カード追加エラー:', error);
-    alert('カードの追加に失敗しました: ' + error.message);
+    showToast('カード追加に失敗しました', true);
   }
 }
 
@@ -185,7 +195,7 @@ async function loadCreditCards() {
 
 function deleteCreditCard(cardId) {
   const card = creditCards.find(c => c.id === cardId);
-  if (!card) { alert('カードが見つかりません'); return; }
+  if (!card) { showToast('カードが見つかりません', true); return; }
   document.getElementById('delete-card-id').value = cardId;
   document.getElementById('delete-card-name').textContent = card.name;
   document.getElementById('delete-card-modal').style.display = 'flex';
@@ -202,7 +212,7 @@ async function confirmDeleteCard() {
     await loadExpenses();
   } catch (error) {
     console.error('カード削除エラー:', error);
-    alert('カードの削除に失敗しました: ' + error.message);
+    showToast('カード削除に失敗しました', true);
   }
 }
 
@@ -335,8 +345,8 @@ async function confirmDeleteCategory() {
 async function addNewCategory() {
   const input = document.getElementById('new-category-name');
   const name = input.value.trim();
-  if (!name) { alert('カテゴリ名を入力してください'); return; }
-  if (categories.some(c => c.name === name)) { alert('このカテゴリは既に存在します'); return; }
+  if (!name) { showToast('カテゴリ名を入力してください', true); return; }
+  if (categories.some(c => c.name === name)) { showToast('このカテゴリは既に存在します', true); return; }
   if (await addCategoryToFirestore(name)) { selectCategory(name); input.value = ''; }
 }
 
@@ -380,7 +390,7 @@ async function saveBudget(yearMonth, amount) {
       await addDoc(collection(db, 'budgets'), { yearMonth, amount: Number(amount), createdAt: Timestamp.now(), updatedAt: Timestamp.now() });
     }
     await loadBudgetForCurrentMonth();
-  } catch (error) { console.error('予算保存エラー:', error); alert('予算の保存に失敗しました'); }
+  } catch (error) { console.error('予算保存エラー:', error); showToast('予算の保存に失敗しました', true); }
 }
 
 async function loadBudgetForCurrentMonth() {
@@ -475,7 +485,7 @@ async function addFixedExpense(data) {
   try {
     await addDoc(collection(db, 'fixedExpenses'), { ...data, isActive: true, createdAt: Timestamp.now() });
     await loadFixedExpenses();
-  } catch (error) { console.error('定額消費追加エラー:', error); alert('追加に失敗しました'); }
+  } catch (error) { console.error('定額消費追加エラー:', error); showToast('追加に失敗しました', true); }
 }
 
 async function toggleFixedExpense(id) {
@@ -506,7 +516,7 @@ async function confirmDeleteFixedExpense() {
     await loadFixedExpenses();
     renderBudgetStatus();
     updateSummary();
-  } catch (error) { console.error('定額消費削除エラー:', error); alert('削除に失敗しました'); }
+  } catch (error) { console.error('定額消費削除エラー:', error); showToast('削除に失敗しました', true); }
 }
 
 function getFixedExpensesTotal() {
@@ -531,7 +541,7 @@ async function saveFixedExpenseAmount(id, value) {
     await loadFixedExpenses();
     renderBudgetStatus();
     updateSummary();
-  } catch (error) { console.error('定額消費金額更新エラー:', error); alert('更新に失敗しました'); }
+  } catch (error) { console.error('定額消費金額更新エラー:', error); showToast('更新に失敗しました', true); }
 }
 
 function renderFixedExpenses() {
@@ -563,7 +573,7 @@ function renderFixedExpenses() {
 async function addExpense(cardId, amount, category, description, date) {
   try {
     const card = creditCards.find(c => c.id === cardId);
-    if (!card) { alert('無効なカードが選択されています'); return; }
+    if (!card) { showToast('無効なカードが選択されています', true); return; }
     const expenseDate = new Date(date);
     const yearMonth = getYearMonth(expenseDate);
     await addDoc(collection(db, 'expenses'), {
@@ -575,7 +585,7 @@ async function addExpense(cardId, amount, category, description, date) {
       currentYearMonth = yearMonth;
     }
     await loadExpenses();
-  } catch (error) { console.error('支出追加エラー:', error); alert('支出の追加に失敗しました: ' + error.message); }
+  } catch (error) { console.error('支出追加エラー:', error); showToast('支出の追加に失敗しました', true); }
 }
 
 async function loadExpenses() {
@@ -598,7 +608,7 @@ async function loadExpenses() {
 
 function deleteExpense(expenseId) {
   const expense = expenses.find(e => e.id === expenseId);
-  if (!expense) { alert('支出が見つかりません'); return; }
+  if (!expense) { showToast('支出が見つかりません', true); return; }
   const card = creditCards.find(c => c.id === expense.cardId);
   const details = `
     <div style="font-size: var(--font-size-sm);">
@@ -620,7 +630,7 @@ async function confirmDeleteExpense() {
     await deleteDoc(doc(db, 'expenses', document.getElementById('delete-expense-id').value));
     closeDeleteExpenseModal();
     await loadExpenses();
-  } catch (error) { console.error('支出削除エラー:', error); alert('支出の削除に失敗しました'); }
+  } catch (error) { console.error('支出削除エラー:', error); showToast('支出の削除に失敗しました', true); }
 }
 
 function openEditModal(expenseId) {
@@ -644,7 +654,7 @@ async function updateExpense(e) {
   const expenseId = document.getElementById('edit-expense-id').value;
   const cardId = document.getElementById('edit-expense-card').value;
   const card = creditCards.find(c => c.id === cardId);
-  if (!card) { alert('無効なカードが選択されています'); return; }
+  if (!card) { showToast('無効なカードが選択されています', true); return; }
   const expenseDate = new Date(document.getElementById('edit-expense-date').value);
   try {
     await updateDoc(doc(db, 'expenses', expenseId), {
@@ -655,7 +665,7 @@ async function updateExpense(e) {
     });
     closeEditModal();
     await loadExpenses();
-  } catch (error) { console.error('支出更新エラー:', error); alert('支出の更新に失敗しました: ' + error.message); }
+  } catch (error) { console.error('支出更新エラー:', error); showToast('支出の更新に失敗しました', true); }
 }
 
 function renderExpenses() {
@@ -965,7 +975,7 @@ function deselectAllExportMonths() {
 
 async function exportToJSON() {
   const selectedMonths = Array.from(document.querySelectorAll('.export-month-cb:checked')).map(cb => cb.value);
-  if (selectedMonths.length === 0) { alert('エクスポートする月を選択してください'); return; }
+  if (selectedMonths.length === 0) { showToast('エクスポートする月を選択してください', true); return; }
 
   try {
     selectedMonths.sort();
@@ -999,8 +1009,8 @@ async function exportToJSON() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    alert('エクスポートが完了しました');
-  } catch (error) { console.error('エクスポートエラー:', error); alert('エクスポートに失敗しました'); }
+    showToast('エクスポートが完了しました');
+  } catch (error) { console.error('エクスポートエラー:', error); showToast('エクスポートに失敗しました', true); }
 }
 
 // ===================================
@@ -1042,9 +1052,10 @@ document.getElementById('expense-filter-card').addEventListener('change', (e) =>
 
 document.getElementById('save-budget-btn').addEventListener('click', async () => {
   const amount = document.getElementById('budget-amount-input').value;
-  if (!amount || Number(amount) <= 0) { alert('有効な予算額を入力してください'); return; }
+  if (!amount || Number(amount) <= 0) { showToast('有効な予算額を入力してください', true); return; }
+  const [y, m] = currentYearMonth.split('-');
   await saveBudget(currentYearMonth, amount);
-  alert('予算を保存しました');
+  showToast(`${y}年${parseInt(m)}月の予算を保存しました`);
 });
 
 document.getElementById('add-fixed-expense-form').addEventListener('submit', async (e) => {
@@ -1053,7 +1064,7 @@ document.getElementById('add-fixed-expense-form').addEventListener('submit', asy
   const amount = document.getElementById('fixed-expense-amount').value;
   const cardId = document.getElementById('fixed-expense-card').value;
   const category = document.getElementById('fixed-expense-category').value;
-  if (!name || !amount || !cardId || !category) { alert('すべての項目を入力してください'); return; }
+  if (!name || !amount || !cardId || !category) { showToast('すべての項目を入力してください', true); return; }
   const card = creditCards.find(c => c.id === cardId);
   await addFixedExpense({ name, amount: Number(amount), cardId, cardName: card ? card.name : '', category });
   document.getElementById('fixed-expense-name').value = '';
@@ -1111,7 +1122,7 @@ async function init() {
     console.log('アプリ初期化完了');
   } catch (error) {
     console.error('初期化エラー:', error);
-    alert('アプリの初期化に失敗しました。Firebase設定を確認してください。');
+    showToast('アプリの初期化に失敗しました', true);
   }
 }
 
