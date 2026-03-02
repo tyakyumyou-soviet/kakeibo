@@ -585,7 +585,7 @@ function renderFixedExpenses() {
   const container = document.getElementById('fixed-expenses-list');
   const empty = document.getElementById('fixed-expenses-empty');
   // 設定画面: endMonthが未設定（現在も有効）な項目のみ表示
-  const activeItems = fixedExpenses.filter(f => !f.endMonth);
+  const activeItems = fixedExpenses.filter(f => !f.endMonth && (f.startMonth || '2000-01') <= currentYearMonth);
   if (activeItems.length === 0) { empty.style.display = 'block'; container.innerHTML = empty.outerHTML; return; }
   empty.style.display = 'none';
   container.innerHTML = activeItems.map(f => {
