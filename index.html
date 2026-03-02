@@ -630,25 +630,26 @@
       </div>
     </div>
 
-    <!-- 定額消費削除確認モーダル -->
+    <!-- 定額消費終了確認モーダル -->
     <div id="delete-fixed-expense-modal" class="modal">
       <div class="modal-overlay" onclick="closeDeleteFixedExpenseModal()"></div>
       <div class="modal-content" style="max-width: 400px;">
         <div class="modal-header">
-          <h2>定額消費を削除</h2>
+          <h2>定額消費を終了</h2>
           <button class="modal-close" onclick="closeDeleteFixedExpenseModal()">×</button>
         </div>
 
         <p style="margin: var(--spacing-lg) 0; color: var(--text-secondary);">
           「<span id="delete-fixed-expense-name"
-            style="color: var(--text-primary); font-weight: 600;"></span>」を削除してもよろしいですか？
+            style="color: var(--text-primary); font-weight: 600;"></span>」を終了しますか？<br>
+          <small>選択中の月以降は計上されなくなりますが、過去月の記録は残ります。</small>
         </p>
 
         <input type="hidden" id="delete-fixed-expense-id">
 
         <div class="modal-actions">
           <button type="button" class="btn btn-secondary" onclick="closeDeleteFixedExpenseModal()">キャンセル</button>
-          <button type="button" class="btn btn-danger" onclick="confirmDeleteFixedExpense()">削除</button>
+          <button type="button" class="btn btn-warning" onclick="confirmEndFixedExpense()">終了する</button>
         </div>
       </div>
     </div>

@@ -25,6 +25,7 @@ let creditCards = [];
 let expenses = [];
 let categories = [];
 let fixedExpenses = [];
+let fixedExpenseSkips = [];
 let currentBudget = null;
 let currentYearMonth = '';
 let debugDate = null;
@@ -130,6 +131,7 @@ function initMonthSelector() {
     currentYearMonth = e.target.value;
     await loadExpenses();
     await loadBudgetForCurrentMonth();
+    renderFixedExpenses();
   });
 }
 
@@ -476,29 +478,50 @@ async function loadFixedExpenses() {
   try {
     const snap = await getDocs(collection(db, 'fixedExpenses'));
     fixedExpenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    await loadFixedExpenseSkips();
     renderFixedExpenses();
   } catch (error) { console.error('定額消費読み込みエラー:', error); }
 }
 
+async function loadFixedExpenseSkips() {
+  try {
+    const snap = await getDocs(collection(db, 'fixedExpenseSkips'));
+    fixedExpenseSkips = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (error) { console.error('スキップ読み込みエラー:', error); fixedExpenseSkips = []; }
+}
+
 async function addFixedExpense(data) {
   try {
-    await addDoc(collection(db, 'fixedExpenses'), { ...data, isActive: true, createdAt: Timestamp.now() });
+    await addDoc(collection(db, 'fixedExpenses'), {
+      ...data,
+      startMonth: currentYearMonth,
+      endMonth: null,
+      createdAt: Timestamp.now()
+    });
     await loadFixedExpenses();
+    showToast('定額消費を追加しました');
   } catch (error) { console.error('定額消費追加エラー:', error); showToast('追加に失敗しました', true); }
 }
 
-async function toggleFixedExpense(id) {
-  const item = fixedExpenses.find(f => f.id === id);
-  if (!item) return;
-  try {
-    await updateDoc(doc(db, 'fixedExpenses', id), { isActive: !item.isActive });
-    await loadFixedExpenses();
-    renderBudgetStatus();
-    updateSummary();
-  } catch (error) { console.error('定額消費更新エラー:', error); }
+// 指定月に適用される定額消費を返す
+function getFixedExpensesForMonth(yearMonth) {
+  return fixedExpenses.filter(f => {
+    const start = f.startMonth || '2000-01';
+    if (start > yearMonth) return false;
+    if (f.endMonth && f.endMonth <= yearMonth) return false;
+    const isSkipped = fixedExpenseSkips.some(
+      s => s.fixedExpenseId === f.id && s.yearMonth === yearMonth
+    );
+    return !isSkipped;
+  });
 }
 
-function deleteFixedExpenseConfirm(id) {
+function getFixedExpensesTotal() {
+  return getFixedExpensesForMonth(currentYearMonth).reduce((sum, f) => sum + f.amount, 0);
+}
+
+// 項目の終了（endMonthを設定、物理削除しない）
+function endFixedExpenseConfirm(id) {
   const item = fixedExpenses.find(f => f.id === id);
   if (!item) return;
   document.getElementById('delete-fixed-expense-id').value = id;
@@ -507,19 +530,34 @@ function deleteFixedExpenseConfirm(id) {
 }
 function closeDeleteFixedExpenseModal() { document.getElementById('delete-fixed-expense-modal').style.display = 'none'; }
 
-async function confirmDeleteFixedExpense() {
+async function confirmEndFixedExpense() {
   const id = document.getElementById('delete-fixed-expense-id').value;
   try {
-    await deleteDoc(doc(db, 'fixedExpenses', id));
+    await updateDoc(doc(db, 'fixedExpenses', id), { endMonth: currentYearMonth });
     closeDeleteFixedExpenseModal();
     await loadFixedExpenses();
     renderBudgetStatus();
     updateSummary();
-  } catch (error) { console.error('定額消費削除エラー:', error); showToast('削除に失敗しました', true); }
+    const [y, m] = currentYearMonth.split('-');
+    showToast(`${y}年${parseInt(m)}月以降は計上されません`);
+  } catch (error) { console.error('定額消費終了エラー:', error); showToast('更新に失敗しました', true); }
 }
 
-function getFixedExpensesTotal() {
-  return fixedExpenses.filter(f => f.isActive).reduce((sum, f) => sum + f.amount, 0);
+// 月別スキップのトグル
+async function skipFixedExpenseForMonth(id, yearMonth) {
+  const skipId = `${id}_${yearMonth}`;
+  const existing = fixedExpenseSkips.find(s => s.id === skipId);
+  try {
+    if (existing) {
+      await deleteDoc(doc(db, 'fixedExpenseSkips', skipId));
+    } else {
+      await setDoc(doc(db, 'fixedExpenseSkips', skipId), { fixedExpenseId: id, yearMonth });
+    }
+    await loadFixedExpenseSkips();
+    renderFixedExpenses();
+    renderBudgetStatus();
+    updateSummary();
+  } catch (error) { console.error('スキップ更新エラー:', error); showToast('更新に失敗しました', true); }
 }
 
 function editFixedExpenseAmount(id) {
@@ -546,25 +584,37 @@ async function saveFixedExpenseAmount(id, value) {
 function renderFixedExpenses() {
   const container = document.getElementById('fixed-expenses-list');
   const empty = document.getElementById('fixed-expenses-empty');
-  if (fixedExpenses.length === 0) { empty.style.display = 'block'; container.innerHTML = empty.outerHTML; return; }
+  // 設定画面: endMonthが未設定（現在も有効）な項目のみ表示
+  const activeItems = fixedExpenses.filter(f => !f.endMonth);
+  if (activeItems.length === 0) { empty.style.display = 'block'; container.innerHTML = empty.outerHTML; return; }
   empty.style.display = 'none';
-  container.innerHTML = fixedExpenses.map(f => `
-    <div class="fixed-expense-item ${f.isActive ? '' : 'inactive'}">
+  container.innerHTML = activeItems.map(f => {
+    const start = f.startMonth || '2000-01';
+    const isInRange = start <= currentYearMonth;
+    const isSkipped = fixedExpenseSkips.some(
+      s => s.fixedExpenseId === f.id && s.yearMonth === currentYearMonth
+    );
+    const startLabel = f.startMonth ? `${f.startMonth.split('-')[0]}年${parseInt(f.startMonth.split('-')[1])}月〜` : '';
+    return `
+    <div class="fixed-expense-item ${isSkipped ? 'skipped' : ''} ${!isInRange ? 'not-in-range' : ''}">
       <div class="fixed-expense-info">
         <span class="fixed-expense-name">${f.name}</span>
         <span class="fixed-expense-amount" id="fixed-amount-${f.id}" onclick="editFixedExpenseAmount('${f.id}')" title="クリックで金額を編集">${formatCurrency(f.amount)}</span>
         <span class="fixed-expense-category">${f.category}</span>
+        ${startLabel ? `<span class="fixed-expense-start">${startLabel}</span>` : ''}
       </div>
       <div class="fixed-expense-actions">
-        <label class="toggle-switch toggle-sm">
-          <input type="checkbox" ${f.isActive ? 'checked' : ''} onchange="toggleFixedExpense('${f.id}')">
-          <span class="toggle-slider"></span>
-        </label>
-        <button class="btn btn-danger btn-sm" onclick="deleteFixedExpenseConfirm('${f.id}')">削除</button>
+        ${isInRange ? `
+        <label class="fixed-expense-skip" title="この月だけスキップ">
+          <input type="checkbox" ${isSkipped ? 'checked' : ''} onchange="skipFixedExpenseForMonth('${f.id}','${currentYearMonth}')">
+          <span class="skip-label">スキップ</span>
+        </label>` : '<span class="fixed-expense-future">未開始</span>'}
+        <button class="btn btn-warning btn-sm" onclick="endFixedExpenseConfirm('${f.id}')">終了</button>
       </div>
-    </div>
-  `).join('') + '<div class="empty-state" id="fixed-expenses-empty" style="display:none;">定額消費はまだ登録されていません</div>';
+    </div>`;
+  }).join('') + '<div class="empty-state" id="fixed-expenses-empty" style="display:none;">定額消費はまだ登録されていません</div>';
 }
+
 
 // ===================================
 // 支出管理
@@ -1092,10 +1142,10 @@ window.closeDeleteCategoryModal = closeDeleteCategoryModal;
 window.confirmDeleteCategory = confirmDeleteCategory;
 window.applySearch = applySearch;
 window.clearSearch = clearSearch;
-window.toggleFixedExpense = toggleFixedExpense;
-window.deleteFixedExpenseConfirm = deleteFixedExpenseConfirm;
+window.endFixedExpenseConfirm = endFixedExpenseConfirm;
 window.closeDeleteFixedExpenseModal = closeDeleteFixedExpenseModal;
-window.confirmDeleteFixedExpense = confirmDeleteFixedExpense;
+window.confirmEndFixedExpense = confirmEndFixedExpense;
+window.skipFixedExpenseForMonth = skipFixedExpenseForMonth;
 window.editFixedExpenseAmount = editFixedExpenseAmount;
 window.saveFixedExpenseAmount = saveFixedExpenseAmount;
 window.exportToJSON = exportToJSON;

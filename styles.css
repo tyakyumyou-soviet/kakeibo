@@ -1765,3 +1765,44 @@ input[type="datetime-local"] {
 .toast.error {
   background: rgba(239, 68, 68, 0.95);
 }
+
+/* 定額消費 スキップ・終了スタイル */
+.fixed-expense-item.skipped {
+  opacity: 0.5;
+}
+.fixed-expense-item.skipped .fixed-expense-name,
+.fixed-expense-item.skipped .fixed-expense-amount {
+  text-decoration: line-through;
+}
+.fixed-expense-item.not-in-range {
+  opacity: 0.4;
+  border-left: 3px solid rgba(255, 255, 255, 0.1);
+}
+.fixed-expense-skip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.fixed-expense-skip input[type="checkbox"] {
+  accent-color: #f59e0b;
+  width: 16px;
+  height: 16px;
+}
+.skip-label {
+  white-space: nowrap;
+}
+.fixed-expense-start {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.fixed-expense-future {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-style: italic;
+}
