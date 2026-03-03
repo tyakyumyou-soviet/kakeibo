@@ -1806,3 +1806,79 @@ input[type="datetime-local"] {
   color: var(--text-muted);
   font-style: italic;
 }
+
+/* 終了済み定額消費 */
+.fixed-expense-item.ended {
+  opacity: 0.45;
+  border-left: 3px solid rgba(245, 158, 11, 0.4);
+}
+.fixed-expense-item.ended .fixed-expense-name,
+.fixed-expense-item.ended .fixed-expense-amount {
+  text-decoration: line-through;
+}
+.fixed-expense-ended-label {
+  font-size: 0.75rem;
+  color: #f59e0b;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+/* 支出一覧のバッジ */
+.expense-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.badge-fixed {
+  background: rgba(102, 126, 234, 0.2);
+  color: #667eea;
+}
+.badge-variable {
+  background: rgba(245, 158, 11, 0.2);
+  color: #f59e0b;
+}
+.fixed-expense-row {
+  opacity: 0.85;
+}
+
+/* 変動定期費 入力エリア */
+.vr-input-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  flex-wrap: wrap;
+}
+.vr-input-item:last-child { border-bottom: none; }
+.vr-input-name {
+  font-weight: 500;
+  min-width: 80px;
+  color: var(--text-primary);
+}
+.vr-input-field {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex: 1;
+}
+.vr-amount-input {
+  max-width: 150px;
+}
+.vr-warning {
+  font-size: 0.75rem;
+  color: #ef4444;
+  white-space: nowrap;
+}
+.vr-entered {
+  font-size: 0.75rem;
+  color: #22c55e;
+  white-space: nowrap;
+}
+.vr-unpaid {
+  border-left: 3px solid #ef4444;
+  padding-left: var(--spacing-sm);
+}

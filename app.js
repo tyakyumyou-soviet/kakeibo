@@ -26,6 +26,8 @@ let expenses = [];
 let categories = [];
 let fixedExpenses = [];
 let fixedExpenseSkips = [];
+let variableRecurring = [];
+let variableRecurringEntries = [];
 let currentBudget = null;
 let currentYearMonth = '';
 let debugDate = null;
@@ -131,6 +133,7 @@ function initMonthSelector() {
     currentYearMonth = e.target.value;
     await loadExpenses();
     await loadBudgetForCurrentMonth();
+    renderVariableRecurringInput();
     renderFixedExpenses();
   });
 }
@@ -250,12 +253,14 @@ function updateExpenseFilterSelect() {
 }
 
 function updateFixedExpenseCardSelect() {
-  const select = document.getElementById('fixed-expense-card');
-  if (!select) return;
-  const val = select.value;
-  select.innerHTML = '<option value="">カードを選択</option>' +
-    creditCards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-  if (val && creditCards.find(c => c.id === val)) select.value = val;
+  ['fixed-expense-card', 'vr-card'].forEach(selectId => {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    const val = select.value;
+    select.innerHTML = '<option value="">カードを選択</option>' +
+      creditCards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    if (val && creditCards.find(c => c.id === val)) select.value = val;
+  });
 }
 
 // ===================================
@@ -584,19 +589,26 @@ async function saveFixedExpenseAmount(id, value) {
 function renderFixedExpenses() {
   const container = document.getElementById('fixed-expenses-list');
   const empty = document.getElementById('fixed-expenses-empty');
-  // 設定画面: endMonthが未設定（現在も有効）な項目のみ表示
-  const activeItems = fixedExpenses.filter(f => !f.endMonth && (f.startMonth || '2000-01') <= currentYearMonth);
-  if (activeItems.length === 0) { empty.style.display = 'block'; container.innerHTML = empty.outerHTML; return; }
-  empty.style.display = 'none';
-  container.innerHTML = activeItems.map(f => {
+  const visibleItems = fixedExpenses.filter(f => {
     const start = f.startMonth || '2000-01';
-    const isInRange = start <= currentYearMonth;
-    const isSkipped = fixedExpenseSkips.some(
-      s => s.fixedExpenseId === f.id && s.yearMonth === currentYearMonth
-    );
+    if (start > currentYearMonth) return false;
+    if (f.endMonth && f.endMonth <= currentYearMonth) return false;
+    return true;
+  });
+  if (visibleItems.length === 0) { empty.style.display = 'block'; container.innerHTML = empty.outerHTML; return; }
+  empty.style.display = 'none';
+  container.innerHTML = visibleItems.map(f => {
+    const isEnded = !!f.endMonth;
+    const isSkipped = fixedExpenseSkips.some(s => s.fixedExpenseId === f.id && s.yearMonth === currentYearMonth);
     const startLabel = f.startMonth ? `${f.startMonth.split('-')[0]}年${parseInt(f.startMonth.split('-')[1])}月〜` : '';
-    return `
-    <div class="fixed-expense-item ${isSkipped ? 'skipped' : ''} ${!isInRange ? 'not-in-range' : ''}">
+    const endLabel = f.endMonth ? `${f.endMonth.split('-')[0]}年${parseInt(f.endMonth.split('-')[1])}月に終了済み` : '';
+    if (isEnded) {
+      return `<div class="fixed-expense-item ended">
+        <div class="fixed-expense-info"><span class="fixed-expense-name">${f.name}</span><span class="fixed-expense-amount">${formatCurrency(f.amount)}</span><span class="fixed-expense-category">${f.category}</span></div>
+        <div class="fixed-expense-actions"><span class="fixed-expense-ended-label">${endLabel}</span></div>
+      </div>`;
+    }
+    return `<div class="fixed-expense-item ${isSkipped ? 'skipped' : ''}">
       <div class="fixed-expense-info">
         <span class="fixed-expense-name">${f.name}</span>
         <span class="fixed-expense-amount" id="fixed-amount-${f.id}" onclick="editFixedExpenseAmount('${f.id}')" title="クリックで金額を編集">${formatCurrency(f.amount)}</span>
@@ -604,17 +616,109 @@ function renderFixedExpenses() {
         ${startLabel ? `<span class="fixed-expense-start">${startLabel}</span>` : ''}
       </div>
       <div class="fixed-expense-actions">
-        ${isInRange ? `
         <label class="fixed-expense-skip" title="この月だけスキップ">
           <input type="checkbox" ${isSkipped ? 'checked' : ''} onchange="skipFixedExpenseForMonth('${f.id}','${currentYearMonth}')">
           <span class="skip-label">スキップ</span>
-        </label>` : '<span class="fixed-expense-future">未開始</span>'}
+        </label>
         <button class="btn btn-warning btn-sm" onclick="endFixedExpenseConfirm('${f.id}')">終了</button>
       </div>
     </div>`;
   }).join('') + '<div class="empty-state" id="fixed-expenses-empty" style="display:none;">定額消費はまだ登録されていません</div>';
 }
 
+// ===================================
+// 変動定期費
+// ===================================
+async function loadVariableRecurring() {
+  try {
+    const snap = await getDocs(collection(db, 'variableRecurring'));
+    variableRecurring = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    await loadVariableRecurringEntries();
+    renderVariableRecurring();
+    renderVariableRecurringInput();
+  } catch (error) { console.error('変動定期費読み込みエラー:', error); }
+}
+async function loadVariableRecurringEntries() {
+  try {
+    const snap = await getDocs(collection(db, 'variableRecurringEntries'));
+    variableRecurringEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (error) { console.error('変動定期費入力読み込みエラー:', error); variableRecurringEntries = []; }
+}
+async function addVariableRecurring(data) {
+  try {
+    await addDoc(collection(db, 'variableRecurring'), { ...data, startMonth: currentYearMonth, endMonth: null, createdAt: Timestamp.now() });
+    await loadVariableRecurring();
+    showToast('変動定期費を追加しました');
+  } catch (error) { console.error('変動定期費追加エラー:', error); showToast('追加に失敗しました', true); }
+}
+function endVariableRecurringConfirm(id) {
+  const item = variableRecurring.find(v => v.id === id);
+  if (!item) return;
+  if (confirm(`「${item.name}」を終了しますか？`)) endVariableRecurring(id);
+}
+async function endVariableRecurring(id) {
+  try {
+    await updateDoc(doc(db, 'variableRecurring', id), { endMonth: currentYearMonth });
+    await loadVariableRecurring(); renderBudgetStatus(); updateSummary();
+    showToast('終了しました');
+  } catch (error) { console.error('変動定期費終了エラー:', error); showToast('更新に失敗しました', true); }
+}
+async function saveVariableRecurringEntry(vrId, yearMonth, value) {
+  const amount = Number(value);
+  if (!amount || amount <= 0) return;
+  try {
+    await setDoc(doc(db, 'variableRecurringEntries', `${vrId}_${yearMonth}`), { variableRecurringId: vrId, yearMonth, amount });
+    await loadVariableRecurringEntries();
+    renderVariableRecurringInput(); renderExpenses(); updateSummary(); renderBudgetStatus();
+    showToast('保存しました');
+  } catch (error) { console.error('変動定期費入力エラー:', error); showToast('保存に失敗しました', true); }
+}
+function getVariableRecurringForMonth(yearMonth) {
+  return variableRecurring.filter(v => {
+    const start = v.startMonth || '2000-01';
+    if (start > yearMonth) return false;
+    if (v.endMonth && v.endMonth <= yearMonth) return false;
+    return true;
+  });
+}
+function getVariableRecurringTotal() {
+  const forMonth = getVariableRecurringForMonth(currentYearMonth);
+  let total = 0;
+  forMonth.forEach(v => {
+    const entry = variableRecurringEntries.find(e => e.variableRecurringId === v.id && e.yearMonth === currentYearMonth);
+    if (entry) total += entry.amount;
+  });
+  return total;
+}
+function renderVariableRecurring() {
+  const container = document.getElementById('variable-recurring-list');
+  if (!container) return;
+  const activeItems = variableRecurring.filter(v => !v.endMonth && (v.startMonth || '2000-01') <= currentYearMonth);
+  if (activeItems.length === 0) { container.innerHTML = '<div class="empty-state">変動定期費はまだ登録されていません</div>'; return; }
+  container.innerHTML = activeItems.map(v => `<div class="fixed-expense-item">
+    <div class="fixed-expense-info"><span class="fixed-expense-name">${v.name}</span><span class="fixed-expense-category">${v.category}</span></div>
+    <div class="fixed-expense-actions"><button class="btn btn-warning btn-sm" onclick="endVariableRecurringConfirm('${v.id}')">終了</button></div>
+  </div>`).join('');
+}
+function renderVariableRecurringInput() {
+  const container = document.getElementById('variable-recurring-input');
+  if (!container) return;
+  const forMonth = getVariableRecurringForMonth(currentYearMonth);
+  if (forMonth.length === 0) { container.innerHTML = ''; return; }
+  container.innerHTML = forMonth.map(v => {
+    const entry = variableRecurringEntries.find(e => e.variableRecurringId === v.id && e.yearMonth === currentYearMonth);
+    const hasValue = entry && entry.amount > 0;
+    return `<div class="vr-input-item ${hasValue ? '' : 'vr-unpaid'}">
+      <span class="vr-input-name">${v.name}</span>
+      <div class="vr-input-field">
+        <input type="number" class="form-input vr-amount-input" placeholder="金額を入力" value="${hasValue ? entry.amount : ''}" min="0"
+          onkeydown="if(event.key==='Enter'){event.preventDefault();saveVariableRecurringEntry('${v.id}','${currentYearMonth}',this.value)}" id="vr-input-${v.id}">
+        <button class="btn btn-primary btn-sm" onclick="saveVariableRecurringEntry('${v.id}','${currentYearMonth}',document.getElementById('vr-input-${v.id}').value)">保存</button>
+      </div>
+      ${!hasValue ? '<span class="vr-warning"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">warning</span> 未入力</span>' : '<span class="vr-entered"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">check_circle</span> 入力済み</span>'}
+    </div>`;
+  }).join('');
+}
 
 // ===================================
 // 支出管理
@@ -726,15 +830,44 @@ function renderExpenses() {
   if (searchFrom) { const d = new Date(searchFrom); filtered = filtered.filter(e => e.date.toDate() >= d); }
   if (searchTo) { const d = new Date(searchTo); d.setHours(23, 59, 59); filtered = filtered.filter(e => e.date.toDate() <= d); }
 
-  if (filtered.length === 0) {
+  const noSearch = !searchQuery && !searchFrom && !searchTo;
+  // 定額消費の行
+  const fixedForMonth = noSearch ? getFixedExpensesForMonth(currentYearMonth) : [];
+  const fixedRows = fixedForMonth.map(f => {
+    const card = creditCards.find(c => c.id === f.cardId);
+    return `<tr class="fixed-expense-row">
+      <td data-label="日付"><span class="expense-badge badge-fixed">定額</span></td>
+      <td data-label="カード"><span class="card-badge" style="display:inline-flex;"><span class="card-color-dot" style="background-color:${card ? card.color : '#999'};"></span><span>${card ? card.name : '-'}</span></span></td>
+      <td data-label="カテゴリ">${f.category}</td>
+      <td data-label="説明">${f.name}</td>
+      <td data-label="金額" class="amount">${formatCurrency(f.amount)}</td>
+      <td data-label="操作"><span class="expense-badge badge-fixed">自動</span></td>
+    </tr>`;
+  }).join('');
+  // 変動定期費の行
+  const vrForMonth = noSearch ? getVariableRecurringForMonth(currentYearMonth) : [];
+  const vrRows = vrForMonth.map(v => {
+    const entry = variableRecurringEntries.find(e => e.variableRecurringId === v.id && e.yearMonth === currentYearMonth);
+    if (!entry) return '';
+    const card = creditCards.find(c => c.id === v.cardId);
+    return `<tr class="fixed-expense-row">
+      <td data-label="日付"><span class="expense-badge badge-variable">変動</span></td>
+      <td data-label="カード"><span class="card-badge" style="display:inline-flex;"><span class="card-color-dot" style="background-color:${card ? card.color : '#999'};"></span><span>${card ? card.name : '-'}</span></span></td>
+      <td data-label="カテゴリ">${v.category}</td>
+      <td data-label="説明">${v.name}</td>
+      <td data-label="金額" class="amount">${formatCurrency(entry.amount)}</td>
+      <td data-label="操作"><span class="expense-badge badge-variable">手入力</span></td>
+    </tr>`;
+  }).filter(r => r).join('');
+
+  if (filtered.length === 0 && !fixedRows && !vrRows) {
     const sel = document.getElementById('month-selector');
     const label = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : currentYearMonth;
     const fl = (filterCardId !== 'all' || searchQuery || searchFrom || searchTo) ? '条件に一致する' : '';
     tbody.innerHTML = `<tr><td colspan="6" class="empty-state">${fl}${label}の支出はまだ登録されていません</td></tr>`;
     return;
   }
-
-  tbody.innerHTML = filtered.map(expense => {
+  const expenseRows = filtered.map(expense => {
     const card = creditCards.find(c => c.id === expense.cardId);
     return `<tr>
       <td data-label="日付">${formatDate(expense.date.toDate())}</td>
@@ -745,6 +878,7 @@ function renderExpenses() {
       <td data-label="操作"><button class="btn btn-warning btn-sm" onclick="openEditModal('${expense.id}')">編集</button> <button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')">削除</button></td>
     </tr>`;
   }).join('');
+  tbody.innerHTML = fixedRows + vrRows + expenseRows;
 }
 
 function applySearch() {
@@ -811,13 +945,14 @@ function updateSummary() {
   creditCards.forEach(c => { cardTotals[c.id] = { name: c.name, color: c.color, amount: 0 }; });
   expenses.forEach(e => { if (cardTotals[e.cardId]) cardTotals[e.cardId].amount += e.amount; });
 
-  const variableTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const expenseTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
   const fixedTotal = getFixedExpensesTotal();
-  const totalAmount = fixedTotal + variableTotal;
+  const vrTotal = getVariableRecurringTotal();
+  const totalAmount = fixedTotal + vrTotal + expenseTotal;
 
   document.getElementById('total-amount').textContent = formatCurrency(totalAmount);
-  document.getElementById('fixed-total').textContent = formatCurrency(fixedTotal);
-  document.getElementById('variable-total').textContent = formatCurrency(variableTotal);
+  document.getElementById('fixed-total').textContent = formatCurrency(fixedTotal + vrTotal);
+  document.getElementById('variable-total').textContent = formatCurrency(expenseTotal);
 
   const cardSummaries = document.getElementById('card-summaries');
   cardSummaries.innerHTML = Object.values(cardTotals).filter(c => c.amount > 0).map(c => `
@@ -1124,6 +1259,18 @@ document.getElementById('add-fixed-expense-form').addEventListener('submit', asy
   updateSummary();
 });
 
+document.getElementById('add-variable-recurring-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('vr-name').value.trim();
+  const cardId = document.getElementById('vr-card').value;
+  const category = document.getElementById('vr-category').value;
+  if (!name || !cardId || !category) { showToast('すべての項目を入力してください', true); return; }
+  await addVariableRecurring({ name, cardId, category });
+  document.getElementById('vr-name').value = '';
+  document.getElementById('vr-card').value = '';
+  document.getElementById('vr-category').value = '';
+});
+
 // グローバル関数公開
 window.deleteCreditCard = deleteCreditCard;
 window.closeDeleteCardModal = closeDeleteCardModal;
@@ -1148,6 +1295,9 @@ window.confirmEndFixedExpense = confirmEndFixedExpense;
 window.skipFixedExpenseForMonth = skipFixedExpenseForMonth;
 window.editFixedExpenseAmount = editFixedExpenseAmount;
 window.saveFixedExpenseAmount = saveFixedExpenseAmount;
+window.addVariableRecurring = addVariableRecurring;
+window.endVariableRecurringConfirm = endVariableRecurringConfirm;
+window.saveVariableRecurringEntry = saveVariableRecurringEntry;
 window.exportToJSON = exportToJSON;
 window.selectAllExportMonths = selectAllExportMonths;
 window.deselectAllExportMonths = deselectAllExportMonths;
@@ -1164,6 +1314,7 @@ async function init() {
     await loadCategories();
     await loadCreditCards();
     await loadFixedExpenses();
+    await loadVariableRecurring();
     await loadExpenses();
     await loadBudgetForCurrentMonth();
     initExportMonths();
