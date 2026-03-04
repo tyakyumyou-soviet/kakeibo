@@ -416,8 +416,9 @@ function renderBudgetStatus() {
   const remaining = document.getElementById('budget-remaining');
 
   const fixedTotal = getFixedExpensesTotal();
+  const vrTotal = getVariableRecurringTotal();
   const variableTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
-  const totalSpent = fixedTotal + variableTotal;
+  const totalSpent = fixedTotal + vrTotal + variableTotal;
 
   if (!currentBudget || currentBudget.amount === null) {
     display.textContent = '未設定';
@@ -425,7 +426,7 @@ function renderBudgetStatus() {
     barFixed.style.width = '0%';
     barVariable.style.width = '0%';
     fixedAmt.textContent = formatCurrency(fixedTotal);
-    variableAmt.textContent = formatCurrency(variableTotal);
+    variableAmt.textContent = formatCurrency(vrTotal + variableTotal);
     remaining.textContent = '残り: -';
     return;
   }
@@ -435,7 +436,7 @@ function renderBudgetStatus() {
   inheritedLabel.style.display = currentBudget.inherited ? 'inline' : 'none';
 
   const fixedPct = Math.min((fixedTotal / budget) * 100, 100);
-  const variablePct = Math.min((variableTotal / budget) * 100, 100 - fixedPct);
+  const variablePct = Math.min(((vrTotal + variableTotal) / budget) * 100, 100 - fixedPct);
   const totalPct = (totalSpent / budget) * 100;
 
   barFixed.style.width = fixedPct + '%';
@@ -449,7 +450,7 @@ function renderBudgetStatus() {
   barVariable.className = 'budget-bar-variable budget-color-' + colorClass;
 
   fixedAmt.textContent = formatCurrency(fixedTotal);
-  variableAmt.textContent = formatCurrency(variableTotal);
+  variableAmt.textContent = formatCurrency(vrTotal + variableTotal);
 
   const rem = budget - totalSpent;
   if (rem >= 0) {
@@ -1008,8 +1009,8 @@ function updateSummary() {
   const totalAmount = fixedTotal + vrTotal + expenseTotal;
 
   document.getElementById('total-amount').textContent = formatCurrency(totalAmount);
-  document.getElementById('fixed-total').textContent = formatCurrency(fixedTotal + vrTotal);
-  document.getElementById('variable-total').textContent = formatCurrency(expenseTotal);
+  document.getElementById('fixed-total').textContent = formatCurrency(fixedTotal);
+  document.getElementById('variable-total').textContent = formatCurrency(vrTotal + expenseTotal);
 
   const cardSummaries = document.getElementById('card-summaries');
   cardSummaries.innerHTML = Object.values(cardTotals).filter(c => c.amount > 0).map(c => `
