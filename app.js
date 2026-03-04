@@ -611,7 +611,7 @@ function renderFixedExpenses() {
     const isEnded = !!f.endMonth;
     const isSkipped = fixedExpenseSkips.some(s => s.fixedExpenseId === f.id && s.yearMonth === currentYearMonth);
     const startLabel = f.startMonth ? `${f.startMonth.split('-')[0]}年${parseInt(f.startMonth.split('-')[1])}月〜` : '';
-    const endLabel = f.endMonth ? `${f.endMonth.split('-')[0]}年${parseInt(f.endMonth.split('-')[1])}月に終了済み` : '';
+    const endLabel = f.endMonth ? `${f.endMonth.split('-')[0]}年${parseInt(f.endMonth.split('-')[1])}月に終了済み（この月では計上）` : '';
     if (isEnded) {
       return `<div class="fixed-expense-item ended">
         <div class="fixed-expense-info"><span class="fixed-expense-name">${f.name}</span><span class="fixed-expense-amount">${formatCurrency(f.amount)}</span><span class="fixed-expense-category">${f.category}</span></div>
