@@ -1403,8 +1403,9 @@ input[type="datetime-local"] {
 
 .budget-bar-fixed {
   height: 100%;
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(90deg, #f59e0b, #d97706);
   transition: width 0.5s ease;
+  border-radius: 8px 0 0 8px;
 }
 
 .budget-bar-variable {
@@ -1734,6 +1735,7 @@ input[type="datetime-local"] {
   padding: 4px 8px !important;
   font-size: var(--font-size-sm) !important;
 }
+
 /* ===================================
    トースト通知
    =================================== */
@@ -1757,11 +1759,13 @@ input[type="datetime-local"] {
   text-align: center;
   max-width: 90vw;
 }
+
 .toast.show {
   opacity: 1;
   visibility: visible;
   transform: translateX(-50%) translateY(0);
 }
+
 .toast.error {
   background: rgba(239, 68, 68, 0.95);
 }
@@ -1770,14 +1774,17 @@ input[type="datetime-local"] {
 .fixed-expense-item.skipped {
   opacity: 0.5;
 }
+
 .fixed-expense-item.skipped .fixed-expense-name,
 .fixed-expense-item.skipped .fixed-expense-amount {
   text-decoration: line-through;
 }
+
 .fixed-expense-item.not-in-range {
   opacity: 0.4;
   border-left: 3px solid rgba(255, 255, 255, 0.1);
 }
+
 .fixed-expense-skip {
   display: flex;
   align-items: center;
@@ -1786,14 +1793,17 @@ input[type="datetime-local"] {
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
 }
+
 .fixed-expense-skip input[type="checkbox"] {
   accent-color: #f59e0b;
   width: 16px;
   height: 16px;
 }
+
 .skip-label {
   white-space: nowrap;
 }
+
 .fixed-expense-start {
   font-size: 0.75rem;
   color: var(--text-muted);
@@ -1801,6 +1811,7 @@ input[type="datetime-local"] {
   padding: 2px 6px;
   border-radius: 4px;
 }
+
 .fixed-expense-future {
   font-size: var(--font-size-sm);
   color: var(--text-muted);
@@ -1812,10 +1823,12 @@ input[type="datetime-local"] {
   opacity: 0.45;
   border-left: 3px solid rgba(245, 158, 11, 0.4);
 }
+
 .fixed-expense-item.ended .fixed-expense-name,
 .fixed-expense-item.ended .fixed-expense-amount {
   text-decoration: line-through;
 }
+
 .fixed-expense-ended-label {
   font-size: 0.75rem;
   color: #f59e0b;
@@ -1832,14 +1845,17 @@ input[type="datetime-local"] {
   font-weight: 600;
   letter-spacing: 0.5px;
 }
+
 .badge-fixed {
   background: rgba(102, 126, 234, 0.2);
   color: #667eea;
 }
+
 .badge-variable {
   background: rgba(245, 158, 11, 0.2);
   color: #f59e0b;
 }
+
 .fixed-expense-row {
   opacity: 0.85;
 }
@@ -1847,37 +1863,45 @@ input[type="datetime-local"] {
 /* 変動定期費 入力エリア */
 .vr-input-item {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-sm) 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-.vr-input-item:last-child { border-bottom: none; }
+
+.vr-input-item:last-child {
+  border-bottom: none;
+}
+
 .vr-input-name {
-  font-weight: 500;
-  min-width: 80px;
+  font-weight: 600;
+  font-size: 0.95rem;
   color: var(--text-primary);
 }
+
 .vr-input-field {
   display: flex;
   gap: var(--spacing-sm);
   align-items: center;
-  flex: 1;
 }
+
 .vr-amount-input {
-  max-width: 150px;
+  flex: 1;
+  max-width: 200px;
 }
+
 .vr-warning {
   font-size: 0.75rem;
   color: #ef4444;
   white-space: nowrap;
 }
+
 .vr-entered {
   font-size: 0.75rem;
   color: #22c55e;
   white-space: nowrap;
 }
+
 .vr-unpaid {
   border-left: 3px solid #ef4444;
   padding-left: var(--spacing-sm);

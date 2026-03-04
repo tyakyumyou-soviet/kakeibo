@@ -490,6 +490,7 @@ async function loadFixedExpenses() {
     renderExpenses();
     updateSummary();
     renderBudgetStatus();
+    updateStatistics();
   } catch (error) { console.error('定額消費読み込みエラー:', error); }
 }
 
@@ -568,6 +569,7 @@ async function skipFixedExpenseForMonth(id, yearMonth) {
     renderExpenses();
     renderBudgetStatus();
     updateSummary();
+    updateStatistics();
   } catch (error) { console.error('スキップ更新エラー:', error); showToast('更新に失敗しました', true); }
 }
 
@@ -594,15 +596,17 @@ async function saveFixedExpenseAmount(id, value) {
 
 function renderFixedExpenses() {
   const container = document.getElementById('fixed-expenses-list');
-  const empty = document.getElementById('fixed-expenses-empty');
+  if (!container) return;
   const visibleItems = fixedExpenses.filter(f => {
     const start = f.startMonth || '2000-01';
     if (start > currentYearMonth) return false;
     if (f.endMonth && f.endMonth <= currentYearMonth) return false;
     return true;
   });
-  if (visibleItems.length === 0) { empty.style.display = 'block'; container.innerHTML = empty.outerHTML; return; }
-  empty.style.display = 'none';
+  if (visibleItems.length === 0) {
+    container.innerHTML = '<div class="empty-state">定額消費はまだ登録されていません</div>';
+    return;
+  }
   container.innerHTML = visibleItems.map(f => {
     const isEnded = !!f.endMonth;
     const isSkipped = fixedExpenseSkips.some(s => s.fixedExpenseId === f.id && s.yearMonth === currentYearMonth);
@@ -629,7 +633,7 @@ function renderFixedExpenses() {
         <button class="btn btn-warning btn-sm" onclick="endFixedExpenseConfirm('${f.id}')">終了</button>
       </div>
     </div>`;
-  }).join('') + '<div class="empty-state" id="fixed-expenses-empty" style="display:none;">定額消費はまだ登録されていません</div>';
+  }).join('');
 }
 
 // ===================================
@@ -646,6 +650,7 @@ async function loadVariableRecurring() {
     renderExpenses();
     updateSummary();
     renderBudgetStatus();
+    updateStatistics();
   } catch (error) { console.error('変動定期費読み込みエラー:', error); }
 }
 async function loadVariableRecurringEntries() {
@@ -674,6 +679,7 @@ async function skipVariableRecurringForMonth(id, yearMonth) {
     renderExpenses();
     updateSummary();
     renderBudgetStatus();
+    updateStatistics();
   } catch (error) { console.error('変動定期費スキップ更新エラー:', error); showToast('更新に失敗しました', true); }
 }
 async function addVariableRecurring(data) {
@@ -701,7 +707,7 @@ async function saveVariableRecurringEntry(vrId, yearMonth, value) {
   try {
     await setDoc(doc(db, 'variableRecurringEntries', `${vrId}_${yearMonth}`), { variableRecurringId: vrId, yearMonth, amount });
     await loadVariableRecurringEntries();
-    renderVariableRecurringInput(); renderExpenses(); updateSummary(); renderBudgetStatus();
+    renderVariableRecurringInput(); renderExpenses(); updateSummary(); renderBudgetStatus(); updateStatistics();
     showToast('保存しました');
   } catch (error) { console.error('変動定期費入力エラー:', error); showToast('保存に失敗しました', true); }
 }
@@ -964,7 +970,7 @@ async function updateStatistics() {
 
     // currentYearMonthを基準にデータ取得（バグ修正: getCurrentDate()ではなく選択中の月を基準に）
     const monthlyData = await getMonthlyData(6, currentYearMonth);
-    const currentMonthTotal = expenses.reduce((sum, e) => sum + e.amount, 0);
+    const currentMonthTotal = expenses.reduce((sum, e) => sum + e.amount, 0) + getFixedExpensesTotal() + getVariableRecurringTotal();
     const avgMonthly = monthlyData.totals.length > 0
       ? Math.round(monthlyData.totals.reduce((a, b) => a + b, 0) / monthlyData.totals.length) : 0;
 
@@ -983,6 +989,11 @@ async function updateStatistics() {
 
     const categoryTotals = {};
     expenses.forEach(e => { if (e.category) categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount; });
+    getFixedExpensesForMonth(currentYearMonth).forEach(f => { if (f.category) categoryTotals[f.category] = (categoryTotals[f.category] || 0) + f.amount; });
+    getVariableRecurringForMonth(currentYearMonth).forEach(v => {
+      const entry = variableRecurringEntries.find(e => e.variableRecurringId === v.id && e.yearMonth === currentYearMonth);
+      if (entry && v.category) categoryTotals[v.category] = (categoryTotals[v.category] || 0) + entry.amount;
+    });
     const topCategory = Object.keys(categoryTotals).length > 0
       ? Object.keys(categoryTotals).reduce((a, b) => categoryTotals[a] > categoryTotals[b] ? a : b) : '-';
 
@@ -1046,6 +1057,14 @@ async function getMonthlyData(months, baseYearMonth) {
       const snap = await getDocs(q);
       const me = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       md.total = me.reduce((s, e) => s + e.amount, 0);
+      // 定額消費を加算
+      const fixedForYM = getFixedExpensesForMonth(md.yearMonth);
+      md.total += fixedForYM.reduce((s, f) => s + f.amount, 0);
+      // 変動定期費を加算
+      getVariableRecurringForMonth(md.yearMonth).forEach(v => {
+        const entry = variableRecurringEntries.find(e => e.variableRecurringId === v.id && e.yearMonth === md.yearMonth);
+        if (entry) md.total += entry.amount;
+      });
       creditCards.forEach(c => { md.cards[c.id] = me.filter(e => e.cardId === c.id).reduce((s, e) => s + e.amount, 0); });
     } catch (error) { console.error(`${md.yearMonth} 取得エラー:`, error); }
   }
@@ -1150,6 +1169,11 @@ async function updateCharts() {
 function getCategoryData() {
   const totals = {};
   expenses.forEach(e => { if (e.category) totals[e.category] = (totals[e.category] || 0) + e.amount; });
+  getFixedExpensesForMonth(currentYearMonth).forEach(f => { if (f.category) totals[f.category] = (totals[f.category] || 0) + f.amount; });
+  getVariableRecurringForMonth(currentYearMonth).forEach(v => {
+    const entry = variableRecurringEntries.find(e => e.variableRecurringId === v.id && e.yearMonth === currentYearMonth);
+    if (entry && v.category) totals[v.category] = (totals[v.category] || 0) + entry.amount;
+  });
   return Object.entries(totals).sort((a, b) => b[1] - a[1]);
 }
 
