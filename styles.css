@@ -1864,8 +1864,8 @@ input[type="datetime-local"] {
 .vr-input-item {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 12px 0;
+  gap: 8px;
+  padding: 14px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -1875,7 +1875,7 @@ input[type="datetime-local"] {
 
 .vr-input-name {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--text-primary);
 }
 
@@ -1883,21 +1883,21 @@ input[type="datetime-local"] {
   display: flex;
   gap: 8px;
   align-items: center;
+  width: 100%;
 }
 
 .vr-amount-input {
   flex: 1;
-  max-width: 200px;
 }
 
 .vr-warning {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #ef4444;
   white-space: nowrap;
 }
 
 .vr-entered {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #22c55e;
   white-space: nowrap;
 }
