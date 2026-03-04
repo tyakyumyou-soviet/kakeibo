@@ -28,6 +28,7 @@ let fixedExpenses = [];
 let fixedExpenseSkips = [];
 let variableRecurring = [];
 let variableRecurringEntries = [];
+let variableRecurringSkips = [];
 let currentBudget = null;
 let currentYearMonth = '';
 let debugDate = null;
@@ -485,6 +486,9 @@ async function loadFixedExpenses() {
     fixedExpenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     await loadFixedExpenseSkips();
     renderFixedExpenses();
+    renderExpenses();
+    updateSummary();
+    renderBudgetStatus();
   } catch (error) { console.error('定額消費読み込みエラー:', error); }
 }
 
@@ -560,6 +564,7 @@ async function skipFixedExpenseForMonth(id, yearMonth) {
     }
     await loadFixedExpenseSkips();
     renderFixedExpenses();
+    renderExpenses();
     renderBudgetStatus();
     updateSummary();
   } catch (error) { console.error('スキップ更新エラー:', error); showToast('更新に失敗しました', true); }
@@ -634,8 +639,12 @@ async function loadVariableRecurring() {
     const snap = await getDocs(collection(db, 'variableRecurring'));
     variableRecurring = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     await loadVariableRecurringEntries();
+    await loadVariableRecurringSkips();
     renderVariableRecurring();
     renderVariableRecurringInput();
+    renderExpenses();
+    updateSummary();
+    renderBudgetStatus();
   } catch (error) { console.error('変動定期費読み込みエラー:', error); }
 }
 async function loadVariableRecurringEntries() {
@@ -643,6 +652,28 @@ async function loadVariableRecurringEntries() {
     const snap = await getDocs(collection(db, 'variableRecurringEntries'));
     variableRecurringEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   } catch (error) { console.error('変動定期費入力読み込みエラー:', error); variableRecurringEntries = []; }
+}
+async function loadVariableRecurringSkips() {
+  try {
+    const snap = await getDocs(collection(db, 'variableRecurringSkips'));
+    variableRecurringSkips = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch (error) { console.error('変動定期費スキップ読み込みエラー:', error); variableRecurringSkips = []; }
+}
+async function skipVariableRecurringForMonth(id, yearMonth) {
+  const skipId = `${id}_${yearMonth}`;
+  const existing = variableRecurringSkips.find(s => s.variableRecurringId === id && s.yearMonth === yearMonth);
+  try {
+    if (existing) {
+      await deleteDoc(doc(db, 'variableRecurringSkips', skipId));
+    } else {
+      await setDoc(doc(db, 'variableRecurringSkips', skipId), { variableRecurringId: id, yearMonth });
+    }
+    await loadVariableRecurringSkips();
+    renderVariableRecurringInput();
+    renderExpenses();
+    updateSummary();
+    renderBudgetStatus();
+  } catch (error) { console.error('変動定期費スキップ更新エラー:', error); showToast('更新に失敗しました', true); }
 }
 async function addVariableRecurring(data) {
   try {
@@ -678,7 +709,10 @@ function getVariableRecurringForMonth(yearMonth) {
     const start = v.startMonth || '2000-01';
     if (start > yearMonth) return false;
     if (v.endMonth && v.endMonth <= yearMonth) return false;
-    return true;
+    const isSkipped = variableRecurringSkips.some(
+      s => s.variableRecurringId === v.id && s.yearMonth === yearMonth
+    );
+    return !isSkipped;
   });
 }
 function getVariableRecurringTotal() {
@@ -703,9 +737,28 @@ function renderVariableRecurring() {
 function renderVariableRecurringInput() {
   const container = document.getElementById('variable-recurring-input');
   if (!container) return;
-  const forMonth = getVariableRecurringForMonth(currentYearMonth);
-  if (forMonth.length === 0) { container.innerHTML = ''; return; }
-  container.innerHTML = forMonth.map(v => {
+  // スキップされていない＋期間内の全項目を表示
+  const allForMonth = variableRecurring.filter(v => {
+    const start = v.startMonth || '2000-01';
+    if (start > currentYearMonth) return false;
+    if (v.endMonth && v.endMonth <= currentYearMonth) return false;
+    return true;
+  });
+  if (allForMonth.length === 0) { container.innerHTML = ''; return; }
+  container.innerHTML = allForMonth.map(v => {
+    const isSkipped = variableRecurringSkips.some(
+      s => s.variableRecurringId === v.id && s.yearMonth === currentYearMonth
+    );
+    if (isSkipped) {
+      return `<div class="vr-input-item" style="opacity:0.5;">
+        <span class="vr-input-name">${v.name}</span>
+        <label class="fixed-expense-skip" title="この月だけスキップ">
+          <input type="checkbox" checked onchange="skipVariableRecurringForMonth('${v.id}','${currentYearMonth}')">
+          <span class="skip-label">スキップ</span>
+        </label>
+        <span class="fixed-expense-ended-label">スキップ中</span>
+      </div>`;
+    }
     const entry = variableRecurringEntries.find(e => e.variableRecurringId === v.id && e.yearMonth === currentYearMonth);
     const hasValue = entry && entry.amount > 0;
     return `<div class="vr-input-item ${hasValue ? '' : 'vr-unpaid'}">
@@ -715,6 +768,10 @@ function renderVariableRecurringInput() {
           onkeydown="if(event.key==='Enter'){event.preventDefault();saveVariableRecurringEntry('${v.id}','${currentYearMonth}',this.value)}" id="vr-input-${v.id}">
         <button class="btn btn-primary btn-sm" onclick="saveVariableRecurringEntry('${v.id}','${currentYearMonth}',document.getElementById('vr-input-${v.id}').value)">保存</button>
       </div>
+      <label class="fixed-expense-skip" title="この月だけスキップ">
+        <input type="checkbox" onchange="skipVariableRecurringForMonth('${v.id}','${currentYearMonth}')">
+        <span class="skip-label">スキップ</span>
+      </label>
       ${!hasValue ? '<span class="vr-warning"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">warning</span> 未入力</span>' : '<span class="vr-entered"><span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle;">check_circle</span> 入力済み</span>'}
     </div>`;
   }).join('');
@@ -1298,6 +1355,7 @@ window.saveFixedExpenseAmount = saveFixedExpenseAmount;
 window.addVariableRecurring = addVariableRecurring;
 window.endVariableRecurringConfirm = endVariableRecurringConfirm;
 window.saveVariableRecurringEntry = saveVariableRecurringEntry;
+window.skipVariableRecurringForMonth = skipVariableRecurringForMonth;
 window.exportToJSON = exportToJSON;
 window.selectAllExportMonths = selectAllExportMonths;
 window.deselectAllExportMonths = deselectAllExportMonths;
