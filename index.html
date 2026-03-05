@@ -113,12 +113,13 @@
         <h2 class="card-title"><span class="material-symbols-outlined icon-title">account_balance</span> 予算状況</h2>
         <div class="budget-status">
           <div class="budget-header">
-            <span>今月の予算</span>
-            <span id="budget-amount-display">未設定</span>
+            <span id="budget-remaining">残り: -</span>
+            <span class="budget-sub">予算: <span id="budget-amount-display">未設定</span></span>
           </div>
           <span class="budget-inherited" id="budget-inherited-label" style="display: none;">前月から継承</span>
           <div class="budget-progress">
             <div class="budget-bar-fixed" id="budget-bar-fixed"></div>
+            <div class="budget-bar-vr" id="budget-bar-vr"></div>
             <div class="budget-bar-variable" id="budget-bar-variable"></div>
           </div>
           <div class="budget-details">
@@ -127,11 +128,12 @@
               <span>固定費: <strong id="budget-fixed-amount">¥0</strong></span>
             </div>
             <div class="budget-detail-item">
-              <span class="breakdown-dot variable"></span>
-              <span>変動費: <strong id="budget-variable-amount">¥0</strong></span>
+              <span class="breakdown-dot vr"></span>
+              <span>変動定期費: <strong id="budget-vr-amount">¥0</strong></span>
             </div>
-            <div class="budget-detail-item budget-remaining">
-              <span id="budget-remaining">残り: -</span>
+            <div class="budget-detail-item">
+              <span class="breakdown-dot variable"></span>
+              <span>その他支出: <strong id="budget-variable-amount">¥0</strong></span>
             </div>
           </div>
         </div>

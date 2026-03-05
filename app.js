@@ -410,8 +410,10 @@ function renderBudgetStatus() {
   const display = document.getElementById('budget-amount-display');
   const inheritedLabel = document.getElementById('budget-inherited-label');
   const barFixed = document.getElementById('budget-bar-fixed');
+  const barVr = document.getElementById('budget-bar-vr');
   const barVariable = document.getElementById('budget-bar-variable');
   const fixedAmt = document.getElementById('budget-fixed-amount');
+  const vrAmt = document.getElementById('budget-vr-amount');
   const variableAmt = document.getElementById('budget-variable-amount');
   const remaining = document.getElementById('budget-remaining');
 
@@ -424,10 +426,13 @@ function renderBudgetStatus() {
     display.textContent = '未設定';
     inheritedLabel.style.display = 'none';
     barFixed.style.width = '0%';
+    barVr.style.width = '0%';
     barVariable.style.width = '0%';
     fixedAmt.textContent = formatCurrency(fixedTotal);
-    variableAmt.textContent = formatCurrency(vrTotal + variableTotal);
+    vrAmt.textContent = formatCurrency(vrTotal);
+    variableAmt.textContent = formatCurrency(variableTotal);
     remaining.textContent = '残り: -';
+    remaining.className = 'budget-remaining-text';
     return;
   }
 
@@ -436,10 +441,12 @@ function renderBudgetStatus() {
   inheritedLabel.style.display = currentBudget.inherited ? 'inline' : 'none';
 
   const fixedPct = Math.min((fixedTotal / budget) * 100, 100);
-  const variablePct = Math.min(((vrTotal + variableTotal) / budget) * 100, 100 - fixedPct);
+  const vrPct = Math.min((vrTotal / budget) * 100, 100 - fixedPct);
+  const variablePct = Math.min((variableTotal / budget) * 100, 100 - fixedPct - vrPct);
   const totalPct = (totalSpent / budget) * 100;
 
   barFixed.style.width = fixedPct + '%';
+  barVr.style.width = vrPct + '%';
   barVariable.style.width = variablePct + '%';
 
   // 色変更
@@ -450,15 +457,16 @@ function renderBudgetStatus() {
   barVariable.className = 'budget-bar-variable budget-color-' + colorClass;
 
   fixedAmt.textContent = formatCurrency(fixedTotal);
-  variableAmt.textContent = formatCurrency(vrTotal + variableTotal);
+  vrAmt.textContent = formatCurrency(vrTotal);
+  variableAmt.textContent = formatCurrency(variableTotal);
 
   const rem = budget - totalSpent;
   if (rem >= 0) {
     remaining.textContent = `残り: ${formatCurrency(rem)}`;
-    remaining.className = 'budget-detail-item budget-remaining';
+    remaining.className = 'budget-remaining-text';
   } else {
     remaining.textContent = `超過: ${formatCurrency(Math.abs(rem))}`;
-    remaining.className = 'budget-detail-item budget-remaining budget-over';
+    remaining.className = 'budget-remaining-text budget-over';
   }
 }
 

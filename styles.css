@@ -1370,16 +1370,23 @@ input[type="datetime-local"] {
 .budget-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
   margin-bottom: var(--spacing-xs);
-  font-size: var(--font-size-md);
-  color: var(--text-secondary);
 }
 
-.budget-header span:last-child {
+.budget-remaining-text {
   font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.budget-remaining-text.budget-over {
+  color: #ef4444;
+}
+
+.budget-sub {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 .budget-inherited {
@@ -1406,6 +1413,12 @@ input[type="datetime-local"] {
   background: linear-gradient(90deg, #f59e0b, #d97706);
   transition: width 0.5s ease;
   border-radius: 8px 0 0 8px;
+}
+
+.budget-bar-vr {
+  height: 100%;
+  background: linear-gradient(90deg, #06b6d4, #0891b2);
+  transition: width 0.5s ease;
 }
 
 .budget-bar-variable {
@@ -1478,7 +1491,11 @@ input[type="datetime-local"] {
 }
 
 .breakdown-dot.fixed {
-  background: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.breakdown-dot.vr {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
 }
 
 .breakdown-dot.variable {
