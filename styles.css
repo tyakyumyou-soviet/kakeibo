@@ -1377,7 +1377,7 @@ input[type="datetime-local"] {
 .budget-remaining-text {
   font-size: var(--font-size-xl);
   font-weight: 700;
-  color: var(--text-primary);
+  color: #22c55e;
 }
 
 .budget-remaining-text.budget-over {
