@@ -885,6 +885,7 @@ async function updateExpense(e) {
 function renderExpenses() {
   const tbody = document.getElementById('expenses-list');
   let filtered = filterCardId === 'all' ? expenses : expenses.filter(e => e.cardId === filterCardId);
+  filtered = filtered.sort((a, b) => b.date.toDate() - a.date.toDate());
   if (searchQuery) filtered = filtered.filter(e =>
     (e.description && e.description.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (e.category && e.category.toLowerCase().includes(searchQuery.toLowerCase())));
