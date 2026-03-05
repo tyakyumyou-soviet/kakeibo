@@ -92,6 +92,11 @@
             <span class="breakdown-amount" id="fixed-total">¥0</span>
           </div>
           <div class="summary-breakdown-item">
+            <span class="breakdown-dot vr"></span>
+            <span class="breakdown-label">定期変動費</span>
+            <span class="breakdown-amount" id="vr-total">¥0</span>
+          </div>
+          <div class="summary-breakdown-item">
             <span class="breakdown-dot variable"></span>
             <span class="breakdown-label">変動費</span>
             <span class="breakdown-amount" id="variable-total">¥0</span>
@@ -122,26 +127,12 @@
             <div class="budget-bar-vr" id="budget-bar-vr"></div>
             <div class="budget-bar-variable" id="budget-bar-variable"></div>
           </div>
-          <div class="budget-details">
-            <div class="budget-detail-item">
-              <span class="breakdown-dot fixed"></span>
-              <span>固定費: <strong id="budget-fixed-amount">¥0</strong></span>
-            </div>
-            <div class="budget-detail-item">
-              <span class="breakdown-dot vr"></span>
-              <span>変動定期費: <strong id="budget-vr-amount">¥0</strong></span>
-            </div>
-            <div class="budget-detail-item">
-              <span class="breakdown-dot variable"></span>
-              <span>変動費: <strong id="budget-variable-amount">¥0</strong></span>
-            </div>
-          </div>
         </div>
       </section>
 
-      <!-- 変動定期費の入力 -->
+      <!-- 定期変動費の入力 -->
       <section class="card" id="vr-input-section">
-        <h2 class="card-title"><span class="material-symbols-outlined icon-title">electric_bolt</span> 変動定期費の入力</h2>
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">electric_bolt</span> 定期変動費の入力</h2>
         <div id="variable-recurring-input"></div>
       </section>
 
@@ -408,14 +399,14 @@
         </form>
       </section>
 
-      <!-- 変動定期費 -->
+      <!-- 定期変動費 -->
       <section class="card">
-        <h2 class="card-title"><span class="material-symbols-outlined icon-title">electric_bolt</span> 変動定期費</h2>
+        <h2 class="card-title"><span class="material-symbols-outlined icon-title">electric_bolt</span> 定期変動費</h2>
         <p style="color: var(--text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-md);">
           電気代・ガス代など、毎月発生するが金額が変動する費用を管理します。金額はダッシュボードで月ごとに入力します。
         </p>
         <div id="variable-recurring-list">
-          <div class="empty-state">変動定期費はまだ登録されていません</div>
+          <div class="empty-state">定期変動費はまだ登録されていません</div>
         </div>
         <form id="add-variable-recurring-form" class="fixed-expense-add-form">
           <div class="form-row">
@@ -437,7 +428,7 @@
                 onclick="openCategoryModal('vr-category')">
             </div>
           </div>
-          <button type="submit" class="btn btn-primary">変動定期費を追加</button>
+          <button type="submit" class="btn btn-primary">定期変動費を追加</button>
         </form>
       </section>
 

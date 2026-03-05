@@ -412,9 +412,6 @@ function renderBudgetStatus() {
   const barFixed = document.getElementById('budget-bar-fixed');
   const barVr = document.getElementById('budget-bar-vr');
   const barVariable = document.getElementById('budget-bar-variable');
-  const fixedAmt = document.getElementById('budget-fixed-amount');
-  const vrAmt = document.getElementById('budget-vr-amount');
-  const variableAmt = document.getElementById('budget-variable-amount');
   const remaining = document.getElementById('budget-remaining');
 
   const fixedTotal = getFixedExpensesTotal();
@@ -428,9 +425,6 @@ function renderBudgetStatus() {
     barFixed.style.width = '0%';
     barVr.style.width = '0%';
     barVariable.style.width = '0%';
-    fixedAmt.textContent = formatCurrency(fixedTotal);
-    vrAmt.textContent = formatCurrency(vrTotal);
-    variableAmt.textContent = formatCurrency(variableTotal);
     remaining.textContent = '残り: -';
     remaining.className = 'budget-remaining-text';
     return;
@@ -449,16 +443,11 @@ function renderBudgetStatus() {
   barVr.style.width = vrPct + '%';
   barVariable.style.width = variablePct + '%';
 
-  // 色変更
   let colorClass = 'green';
   if (totalPct > 100) colorClass = 'red';
   else if (totalPct > 80) colorClass = 'orange';
   else if (totalPct > 50) colorClass = 'yellow';
   barVariable.className = 'budget-bar-variable budget-color-' + colorClass;
-
-  fixedAmt.textContent = formatCurrency(fixedTotal);
-  vrAmt.textContent = formatCurrency(vrTotal);
-  variableAmt.textContent = formatCurrency(variableTotal);
 
   const rem = budget - totalSpent;
   if (rem >= 0) {
@@ -645,7 +634,7 @@ function renderFixedExpenses() {
 }
 
 // ===================================
-// 変動定期費
+// 定期変動費
 // ===================================
 async function loadVariableRecurring() {
   try {
@@ -659,19 +648,19 @@ async function loadVariableRecurring() {
     updateSummary();
     renderBudgetStatus();
     updateStatistics();
-  } catch (error) { console.error('変動定期費読み込みエラー:', error); }
+  } catch (error) { console.error('定期変動費読み込みエラー:', error); }
 }
 async function loadVariableRecurringEntries() {
   try {
     const snap = await getDocs(collection(db, 'variableRecurringEntries'));
     variableRecurringEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (error) { console.error('変動定期費入力読み込みエラー:', error); variableRecurringEntries = []; }
+  } catch (error) { console.error('定期変動費入力読み込みエラー:', error); variableRecurringEntries = []; }
 }
 async function loadVariableRecurringSkips() {
   try {
     const snap = await getDocs(collection(db, 'variableRecurringSkips'));
     variableRecurringSkips = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  } catch (error) { console.error('変動定期費スキップ読み込みエラー:', error); variableRecurringSkips = []; }
+  } catch (error) { console.error('定期変動費スキップ読み込みエラー:', error); variableRecurringSkips = []; }
 }
 async function skipVariableRecurringForMonth(id, yearMonth) {
   const skipId = `${id}_${yearMonth}`;
@@ -688,14 +677,14 @@ async function skipVariableRecurringForMonth(id, yearMonth) {
     updateSummary();
     renderBudgetStatus();
     updateStatistics();
-  } catch (error) { console.error('変動定期費スキップ更新エラー:', error); showToast('更新に失敗しました', true); }
+  } catch (error) { console.error('定期変動費スキップ更新エラー:', error); showToast('更新に失敗しました', true); }
 }
 async function addVariableRecurring(data) {
   try {
     await addDoc(collection(db, 'variableRecurring'), { ...data, startMonth: currentYearMonth, endMonth: null, createdAt: Timestamp.now() });
     await loadVariableRecurring();
-    showToast('変動定期費を追加しました');
-  } catch (error) { console.error('変動定期費追加エラー:', error); showToast('追加に失敗しました', true); }
+    showToast('定期変動費を追加しました');
+  } catch (error) { console.error('定期変動費追加エラー:', error); showToast('追加に失敗しました', true); }
 }
 function endVariableRecurringConfirm(id) {
   const item = variableRecurring.find(v => v.id === id);
@@ -707,7 +696,7 @@ async function endVariableRecurring(id) {
     await updateDoc(doc(db, 'variableRecurring', id), { endMonth: currentYearMonth });
     await loadVariableRecurring(); renderBudgetStatus(); updateSummary();
     showToast('終了しました');
-  } catch (error) { console.error('変動定期費終了エラー:', error); showToast('更新に失敗しました', true); }
+  } catch (error) { console.error('定期変動費終了エラー:', error); showToast('更新に失敗しました', true); }
 }
 async function saveVariableRecurringEntry(vrId, yearMonth, value) {
   const amount = value === '' || value === null || value === undefined ? 0 : Number(value);
@@ -717,7 +706,7 @@ async function saveVariableRecurringEntry(vrId, yearMonth, value) {
     await loadVariableRecurringEntries();
     renderVariableRecurringInput(); renderExpenses(); updateSummary(); renderBudgetStatus(); updateStatistics();
     showToast('保存しました');
-  } catch (error) { console.error('変動定期費入力エラー:', error); showToast('保存に失敗しました', true); }
+  } catch (error) { console.error('定期変動費入力エラー:', error); showToast('保存に失敗しました', true); }
 }
 function getVariableRecurringForMonth(yearMonth) {
   return variableRecurring.filter(v => {
@@ -743,7 +732,7 @@ function renderVariableRecurring() {
   const container = document.getElementById('variable-recurring-list');
   if (!container) return;
   const activeItems = variableRecurring.filter(v => !v.endMonth && (v.startMonth || '2000-01') <= currentYearMonth);
-  if (activeItems.length === 0) { container.innerHTML = '<div class="empty-state">変動定期費はまだ登録されていません</div>'; return; }
+  if (activeItems.length === 0) { container.innerHTML = '<div class="empty-state">定期変動費はまだ登録されていません</div>'; return; }
   container.innerHTML = activeItems.map(v => `<div class="fixed-expense-item">
     <div class="fixed-expense-info"><span class="fixed-expense-name">${v.name}</span><span class="fixed-expense-category">${v.category}</span></div>
     <div class="fixed-expense-actions"><button class="btn btn-warning btn-sm" onclick="endVariableRecurringConfirm('${v.id}')">終了</button></div>
@@ -916,7 +905,7 @@ function renderExpenses() {
       <td data-label="操作"><span class="expense-badge badge-fixed">自動</span></td>
     </tr>`;
   }).join('');
-  // 変動定期費の行
+  // 定期変動費の行
   const vrForMonth = noSearch ? getVariableRecurringForMonth(currentYearMonth) : [];
   const vrRows = vrForMonth.map(v => {
     const entry = variableRecurringEntries.find(e => e.variableRecurringId === v.id && e.yearMonth === currentYearMonth);
@@ -1029,7 +1018,9 @@ function updateSummary() {
 
   document.getElementById('total-amount').textContent = formatCurrency(totalAmount);
   document.getElementById('fixed-total').textContent = formatCurrency(fixedTotal);
-  document.getElementById('variable-total').textContent = formatCurrency(vrTotal + expenseTotal);
+  const vrTotalEl = document.getElementById('vr-total');
+  if (vrTotalEl) vrTotalEl.textContent = formatCurrency(vrTotal);
+  document.getElementById('variable-total').textContent = formatCurrency(expenseTotal);
 
   const cardSummaries = document.getElementById('card-summaries');
   cardSummaries.innerHTML = Object.values(cardTotals).filter(c => c.amount > 0).map(c => `
@@ -1068,7 +1059,7 @@ async function getMonthlyData(months, baseYearMonth) {
       // 定額消費を加算
       const fixedForYM = getFixedExpensesForMonth(md.yearMonth);
       md.total += fixedForYM.reduce((s, f) => s + f.amount, 0);
-      // 変動定期費を加算
+      // 定期変動費を加算
       getVariableRecurringForMonth(md.yearMonth).forEach(v => {
         const entry = variableRecurringEntries.find(e => e.variableRecurringId === v.id && e.yearMonth === md.yearMonth);
         if (entry) md.total += entry.amount;
