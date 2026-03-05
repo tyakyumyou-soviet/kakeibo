@@ -710,8 +710,8 @@ async function endVariableRecurring(id) {
   } catch (error) { console.error('変動定期費終了エラー:', error); showToast('更新に失敗しました', true); }
 }
 async function saveVariableRecurringEntry(vrId, yearMonth, value) {
-  const amount = Number(value);
-  if (!amount || amount <= 0) return;
+  const amount = value === '' || value === null || value === undefined ? 0 : Number(value);
+  if (isNaN(amount) || amount < 0) return;
   try {
     await setDoc(doc(db, 'variableRecurringEntries', `${vrId}_${yearMonth}`), { variableRecurringId: vrId, yearMonth, amount });
     await loadVariableRecurringEntries();
