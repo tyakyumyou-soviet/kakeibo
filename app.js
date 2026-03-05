@@ -940,7 +940,7 @@ function renderExpenses() {
       <td data-label="操作"><button class="btn btn-warning btn-sm" onclick="openEditModal('${expense.id}')">編集</button> <button class="btn btn-danger btn-sm" onclick="deleteExpense('${expense.id}')">削除</button></td>
     </tr>`;
   }).join('');
-  tbody.innerHTML = fixedRows + vrRows + expenseRows;
+  tbody.innerHTML = expenseRows + vrRows + fixedRows;
 }
 
 function applySearch() {
